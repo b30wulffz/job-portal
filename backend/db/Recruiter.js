@@ -20,7 +20,6 @@ let schema = new mongoose.Schema({
   },
   bio: {
     type: String,
-    maxLength: 250,
   },
 });
 

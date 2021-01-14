@@ -20,22 +20,26 @@ let schema = new mongoose.Schema({
         min: 1930,
         max: new Date().getFullYear(),
         required: true,
+        validate: Number.isInteger,
       },
       endYear: {
         type: Number,
         max: new Date().getFullYear(),
-        validate: (value) => {
-          if (value) {
-            return this.startYear <= value;
-          }
-          return true;
-        },
+        validate: [
+          { validator: Number.isInteger, msg: "Year should be an integer" },
+          {
+            validator: function (value) {
+              return this.startYear <= value;
+            },
+            msg: "End year should be greater than or equal to Start year",
+          },
+        ],
       },
     },
   ],
   skills: [String],
   rating: {
-    type: mongoose.Types.Decimal128,
+    type: Number,
     max: 5.0,
     default: -1.0,
   },

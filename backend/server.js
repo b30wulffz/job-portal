@@ -16,6 +16,9 @@ mongoose
 const app = express();
 const port = 4444;
 
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+
 // Setting up middlewares
 app.use(express.json());
 app.use(passportConfig.initialize());

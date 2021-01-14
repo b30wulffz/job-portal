@@ -38,7 +38,7 @@ schema.pre("save", function (next) {
 });
 
 // Password verification upon login
-schema.methods.login = (password) => {
+schema.methods.login = function (password) {
   let user = this;
 
   return new Promise((resolve, reject) => {
@@ -46,7 +46,11 @@ schema.methods.login = (password) => {
       if (err) {
         reject(err);
       }
-      resolve();
+      if (result) {
+        resolve();
+      } else {
+        reject();
+      }
     });
   });
 };
