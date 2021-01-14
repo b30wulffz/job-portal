@@ -41,11 +41,18 @@ let schema = new mongoose.Schema({
   },
   dateOfPosting: {
     type: Date,
-    default: Date.now,
+    default: new Date(),
   },
   deadline: {
     type: Date,
-    validate,
+    validate: [
+      {
+        validator: function (value) {
+          return this.dateOfPosting < deadline;
+        },
+        msg: "deadline should be greater than dateOfPosting",
+      },
+    ],
   },
   skillsets: [String],
   jobType: {

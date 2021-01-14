@@ -25,7 +25,7 @@ app.use(passportConfig.initialize());
 
 // Routing
 app.use("/auth", require("./routes/authRoutes"));
-// app.use("/api", require("./routes/apiRoutes"));
+app.use("/api", require("./routes/apiRoutes"));
 
 app.listen(port, () => {
   console.log(`Server started on port ${port}!`);

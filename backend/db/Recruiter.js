@@ -15,7 +15,7 @@ let schema = new mongoose.Schema({
       validator: function (v) {
         return /\+\d{1,4}-\d{10}/.test(v);
       },
-      message: "{VALUE} is not a valid phone number!",
+      msg: "Phone number is invalid!",
     },
   },
   bio: {

@@ -23,13 +23,13 @@ router.post("/signup", (req, res) => {
       const userDetails =
         user.type == "recruiter"
           ? new Recruiter({
-              userId: user.id,
+              userId: user._id,
               name: data.name,
               contactNumber: data.contactNumber,
               bio: data.bio,
             })
           : new JobApplicant({
-              userId: user.id,
+              userId: user._id,
               name: data.name,
               education: data.education,
               skills: data.skills,
@@ -42,7 +42,7 @@ router.post("/signup", (req, res) => {
         .save()
         .then(() => {
           // Token
-          const token = jwt.sign({ id: user.id }, authKeys.jwtSecretKey);
+          const token = jwt.sign({ _id: user._id }, authKeys.jwtSecretKey);
           res.json({ token: token });
         })
         .catch((err) => {
@@ -75,7 +75,7 @@ router.post("/login", (req, res, next) => {
         return;
       }
       // Token
-      const token = jwt.sign({ id: user.id }, authKeys.jwtSecretKey);
+      const token = jwt.sign({ _id: user._id }, authKeys.jwtSecretKey);
       res.json({
         token: token,
         user: user,
