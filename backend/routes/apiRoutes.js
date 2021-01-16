@@ -79,16 +79,18 @@ router.get("/jobs", (req, res, next) => {
     if (req.query.salaryMin && req.query.salaryMax) {
       findParams = {
         ...findParams,
-        salary: {
-          $and: [
-            {
+        $and: [
+          {
+            salary: {
               $gte: parseInt(req.query.salaryMin),
             },
-            {
+          },
+          {
+            salary: {
               $lte: parseInt(req.query.salaryMax),
             },
-          ],
-        },
+          },
+        ],
       };
     } else if (req.query.salaryMin) {
       findParams = {
@@ -102,6 +104,15 @@ router.get("/jobs", (req, res, next) => {
         ...findParams,
         salary: {
           $lte: parseInt(req.query.salaryMax),
+        },
+      };
+    }
+
+    if (req.query.duration) {
+      findParams = {
+        ...findParams,
+        duration: {
+          $lt: parseInt(req.query.duration),
         },
       };
     }
