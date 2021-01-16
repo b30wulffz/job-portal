@@ -3,7 +3,12 @@ const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const authKeys = require("../lib/authKeys");
 
+const User = require("../db/User");
+const JobApplicant = require("../db/JobApplicant");
+const Recruiter = require("../db/Recruiter");
+
 const Job = require("../db/Job");
+const { use } = require("passport");
 
 const router = express.Router();
 
@@ -285,6 +290,91 @@ router.delete("/jobs/:id", (req, res, next) => {
       .catch((err) => {
         res.status(400).json(err);
       });
+  })(req, res, next);
+});
+
+// update user details
+router.put("/user", (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, function (err, user, info) {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      res.status(401).json(info);
+      return;
+    }
+    const data = req.body;
+    if (user.type == "recruiter") {
+      Recruiter.findOne({ userId: user._id })
+        .then((recruiter) => {
+          if (recruiter == null) {
+            res.status(404).json({
+              message: "User does not exist",
+            });
+            return;
+          }
+          if (data.name) {
+            recruiter.name = data.name;
+          }
+          if (data.contactNumber) {
+            recruiter.contactNumber = data.contactNumber;
+          }
+          if (data.bio) {
+            recruiter.bio = data.bio;
+          }
+          recruiter
+            .save()
+            .then(() => {
+              res.json({
+                message: "User information updated successfully",
+              });
+            })
+            .catch((err) => {
+              res.status(400).json(err);
+            });
+        })
+        .catch((err) => {
+          res.status(400).json(err);
+        });
+    } else {
+      JobApplicant.findOne({ userId: user._id })
+        .then((jobApplicant) => {
+          if (jobApplicant == null) {
+            res.status(404).json({
+              message: "User does not exist",
+            });
+            return;
+          }
+          if (data.name) {
+            jobApplicant.name = data.name;
+          }
+          if (data.education) {
+            jobApplicant.education = data.education;
+          }
+          if (data.skills) {
+            jobApplicant.skills = data.skills;
+          }
+          if (data.resume) {
+            jobApplicant.resume = data.resume;
+          }
+          if (data.profile) {
+            jobApplicant.profile = data.profile;
+          }
+          jobApplicant
+            .save()
+            .then(() => {
+              res.json({
+                message: "User information updated successfully",
+              });
+            })
+            .catch((err) => {
+              res.status(400).json(err);
+            });
+        })
+        .catch((err) => {
+          res.status(400).json(err);
+        });
+    }
   })(req, res, next);
 });
 
