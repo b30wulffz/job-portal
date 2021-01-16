@@ -45,4 +45,126 @@ router.post("/addJob", (req, res, next) => {
   })(req, res, next);
 });
 
+router.get("/jobs", (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, function (err, user, info) {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      res.status(401).json(info);
+      return;
+    }
+
+    let findParams = {};
+    let sortParams = {};
+    // console.log(req.query);
+    // console.log(Array.isArray(req.query.q));
+
+    if (req.query.q) {
+      findParams = {
+        ...findParams,
+        title: {
+          $regex: new RegExp(req.query.q),
+        },
+      };
+    }
+
+    if (req.query.jobType) {
+      findParams = {
+        ...findParams,
+        jobType: req.query.jobType,
+      };
+    }
+
+    if (req.query.salaryMin && req.query.salaryMax) {
+      findParams = {
+        ...findParams,
+        salary: {
+          $and: [
+            {
+              $gte: parseInt(req.query.salaryMin),
+            },
+            {
+              $lte: parseInt(req.query.salaryMax),
+            },
+          ],
+        },
+      };
+    } else if (req.query.salaryMin) {
+      findParams = {
+        ...findParams,
+        salary: {
+          $gte: parseInt(req.query.salaryMin),
+        },
+      };
+    } else if (req.query.salaryMax) {
+      findParams = {
+        ...findParams,
+        salary: {
+          $lte: parseInt(req.query.salaryMax),
+        },
+      };
+    }
+
+    if (req.query.asc) {
+      if (Array.isArray(req.query.asc)) {
+        req.query.asc.map((key) => {
+          sortParams = {
+            ...sortParams,
+            [key]: 1,
+          };
+        });
+      } else {
+        sortParams = {
+          ...sortParams,
+          [req.query.asc]: 1,
+        };
+      }
+    }
+
+    if (req.query.desc) {
+      if (Array.isArray(req.query.desc)) {
+        req.query.desc.map((key) => {
+          sortParams = {
+            ...sortParams,
+            [key]: -1,
+          };
+        });
+      } else {
+        sortParams = {
+          ...sortParams,
+          [req.query.desc]: -1,
+        };
+      }
+    }
+
+    console.log(findParams);
+    console.log(sortParams);
+
+    Job.find(findParams)
+      .collation({ locale: "en" })
+      .sort(sortParams)
+      .then((posts) => {
+        // console.log(posts);
+        res.json(posts);
+      })
+      .catch((err) => {
+        console.log(err);
+        res.json({ msg: "jksddkj" });
+      });
+  })(req, res, next);
+});
+
+// router.get("/jobs", (req, res, next) => {
+//   passport.authenticate("jwt", { session: false }, function (err, user, info) {
+//     if (err) {
+//       return next(err);
+//     }
+//     if (!user) {
+//       res.status(401).json(info);
+//       return;
+//     }
+//   })(req, res, next);
+// });
+
 module.exports = router;
