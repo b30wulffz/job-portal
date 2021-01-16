@@ -50,6 +50,10 @@ router.get("/jobs", jwtAuth, (req, res) => {
   let findParams = {};
   let sortParams = {};
 
+  const page = parseInt(req.query.page) ? parseInt(req.query.page) : 1;
+  const limit = parseInt(req.query.limit) ? parseInt(req.query.limit) : 10;
+  const skip = page - 1 >= 0 ? (page - 1) * limit : 0;
+
   if (req.query.q) {
     findParams = {
       ...findParams,
@@ -145,6 +149,8 @@ router.get("/jobs", jwtAuth, (req, res) => {
   Job.find(findParams)
     .collation({ locale: "en" })
     .sort(sortParams)
+    .skip(skip)
+    .limit(limit)
     .then((posts) => {
       if (posts == null) {
         res.status(404).json({
