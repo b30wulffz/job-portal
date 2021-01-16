@@ -17,6 +17,12 @@ router.post("/addJob", (req, res, next) => {
       return;
     }
 
+    if (user.type != "recuiter") {
+      res.status(401).json({
+        message: "You don't have permissions to add jobs",
+      });
+      return;
+    }
     // when user exists
     const data = req.body;
     console.log("Passed");
@@ -160,8 +166,75 @@ router.get("/jobs", (req, res, next) => {
         res.json(posts);
       })
       .catch((err) => {
-        console.log(err);
-        res.json({ msg: "jksddkj" });
+        res.status(400).json(err);
+      });
+  })(req, res, next);
+});
+
+// to get info about a particular job
+router.get("/jobs/:id", (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, function (err, user, info) {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      res.status(401).json(info);
+      return;
+    }
+    Job.findOne({ _id: req.params.id })
+      .then((job) => {
+        res.json(job);
+      })
+      .catch((err) => {
+        res.status(400).json(err);
+      });
+  })(req, res, next);
+});
+
+// to update info of a particular job
+router.put("/jobs/:id", (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, function (err, user, info) {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      res.status(401).json(info);
+      return;
+    }
+    if (user.type != "recuiter") {
+      res.status(401).json({
+        message: "You don't have permissions to change the job details",
+      });
+      return;
+    }
+    Job.findOne({
+      _id: req.params.id,
+      userId: user.id,
+    })
+      .then((job) => {
+        const data = req.body;
+        if (data.maxApplicants) {
+          job.maxApplicants = data.maxApplicants;
+        }
+        if (data.maxPositions) {
+          job.maxPositions = data.maxPositions;
+        }
+        if (data.deadline) {
+          job.deadline = data.deadline;
+        }
+        job
+          .save()
+          .then(() => {
+            res.json({
+              message: "Job details updated successfully",
+            });
+          })
+          .catch((err) => {
+            res.status(400).json(err);
+          });
+      })
+      .catch((err) => {
+        res.status(400).json(err);
       });
   })(req, res, next);
 });
