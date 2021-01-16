@@ -162,7 +162,12 @@ router.get("/jobs", (req, res, next) => {
       .collation({ locale: "en" })
       .sort(sortParams)
       .then((posts) => {
-        // console.log(posts);
+        if (posts == null) {
+          res.status(404).json({
+            message: "No job found",
+          });
+          return;
+        }
         res.json(posts);
       })
       .catch((err) => {
@@ -183,6 +188,13 @@ router.get("/jobs/:id", (req, res, next) => {
     }
     Job.findOne({ _id: req.params.id })
       .then((job) => {
+        if (job == null) {
+          res.status(400).json({
+            message: "Job does not exist",
+          });
+          return;
+        }
+        console.log(job);
         res.json(job);
       })
       .catch((err) => {
@@ -201,17 +213,23 @@ router.put("/jobs/:id", (req, res, next) => {
       res.status(401).json(info);
       return;
     }
-    if (user.type != "recuiter") {
-      res.status(401).json({
-        message: "You don't have permissions to change the job details",
-      });
-      return;
-    }
+    // if (user.type != "recuiter") {
+    //   res.status(401).json({
+    //     message: "You don't have permissions to change the job details",
+    //   });
+    //   return;
+    // }
     Job.findOne({
       _id: req.params.id,
       userId: user.id,
     })
       .then((job) => {
+        if (job == null) {
+          res.status(404).json({
+            message: "Job does not exist",
+          });
+          return;
+        }
         const data = req.body;
         if (data.maxApplicants) {
           job.maxApplicants = data.maxApplicants;
@@ -232,6 +250,37 @@ router.put("/jobs/:id", (req, res, next) => {
           .catch((err) => {
             res.status(400).json(err);
           });
+      })
+      .catch((err) => {
+        res.status(400).json(err);
+      });
+  })(req, res, next);
+});
+
+// to delete a job
+router.delete("/jobs/:id", (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, function (err, user, info) {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      res.status(401).json(info);
+      return;
+    }
+    if (user.type != "recuiter") {
+      res.status(401).json({
+        message: "You don't have permissions to delete the job",
+      });
+      return;
+    }
+    Job.findOneAndDelete({
+      _id: req.params.id,
+      userId: user.id,
+    })
+      .then(() => {
+        res.json({
+          message: "Job deleted successfully",
+        });
       })
       .catch((err) => {
         res.status(400).json(err);
