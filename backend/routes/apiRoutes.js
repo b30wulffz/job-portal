@@ -213,12 +213,12 @@ router.put("/jobs/:id", (req, res, next) => {
       res.status(401).json(info);
       return;
     }
-    // if (user.type != "recuiter") {
-    //   res.status(401).json({
-    //     message: "You don't have permissions to change the job details",
-    //   });
-    //   return;
-    // }
+    if (user.type != "recuiter") {
+      res.status(401).json({
+        message: "You don't have permissions to change the job details",
+      });
+      return;
+    }
     Job.findOne({
       _id: req.params.id,
       userId: user.id,
