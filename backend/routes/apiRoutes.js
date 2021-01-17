@@ -515,7 +515,7 @@ router.post("/jobs/:id/applications", jwtAuth, (req, res) => {
     });
 });
 
-// recruiter gets applications for a particular job [pagination]
+// recruiter gets applications for a particular job [pagination] [todo: test]
 router.get("/jobs/:id/applications", jwtAuth, (req, res) => {
   const user = req.user;
   if (user.type != "recruiter") {
@@ -530,10 +530,23 @@ router.get("/jobs/:id/applications", jwtAuth, (req, res) => {
   const limit = parseInt(req.query.limit) ? parseInt(req.query.limit) : 10;
   const skip = page - 1 >= 0 ? (page - 1) * limit : 0;
 
-  Application.find({
+  let findParams = {
     jobId: jobId,
     recruiterId: user._id,
-  })
+  };
+
+  let sortParams = {};
+
+  if (req.query.status) {
+    findParams = {
+      ...findParams,
+      status: req.query.status,
+    };
+  }
+
+  Application.find(findParams)
+    .collation({ locale: "en" })
+    .sort(sortParams)
     .skip(skip)
     .limit(limit)
     .then((applications) => {
@@ -719,6 +732,18 @@ router.put("/applications/:id", jwtAuth, (req, res) => {
         message: "You don't have permissions to update job status",
       });
     }
+  }
+});
+
+// get a list of final applicants for current job : recruiter
+
+// get a list of final applicants for all his jobs : recuiter
+
+// to add or update a rating
+router.put("/rating", jwtAuth, (req, res) => {
+  const user = req.user;
+  if (user.type === "recruiter") {
+  } else {
   }
 });
 
