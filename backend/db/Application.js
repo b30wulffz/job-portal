@@ -5,6 +5,10 @@ let schema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  recruiterId: {
+    type: String,
+    required: true,
+  },
   jobId: {
     type: String,
     required: true,

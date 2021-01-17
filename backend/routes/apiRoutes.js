@@ -46,14 +46,24 @@ router.post("/jobs", jwtAuth, (req, res) => {
     });
 });
 
-// to get all the jobs [pagination]
+// to get all the jobs [pagination] [for recruiter personal and for everyone]
 router.get("/jobs", jwtAuth, (req, res) => {
+  let user = req.user;
+
   let findParams = {};
   let sortParams = {};
 
   const page = parseInt(req.query.page) ? parseInt(req.query.page) : 1;
   const limit = parseInt(req.query.limit) ? parseInt(req.query.limit) : 10;
   const skip = page - 1 >= 0 ? (page - 1) * limit : 0;
+
+  // to list down jobs posted by a particular recruiter
+  if (user.type === "recruiter" && req.query.myjobs) {
+    findParams = {
+      ...findParams,
+      userId: user.id,
+    };
+  }
 
   if (req.query.q) {
     findParams = {
@@ -452,6 +462,7 @@ router.post("/jobs/:id/applications", jwtAuth, (req, res) => {
                 if (myActiveApplicationCount < 10) {
                   const application = new Application({
                     userId: user._id,
+                    recruiterId: job.userId,
                     jobId: job._id,
                     status: "applied",
                     sop: data.sop,
@@ -491,7 +502,7 @@ router.post("/jobs/:id/applications", jwtAuth, (req, res) => {
     });
 });
 
-// get applications for a particular job [pagination]
+// recruiter gets applications for a particular job [pagination]
 router.get("/jobs/:id/applications", jwtAuth, (req, res) => {
   const user = req.user;
   if (user.type != "recruiter") {
@@ -506,28 +517,35 @@ router.get("/jobs/:id/applications", jwtAuth, (req, res) => {
   const limit = parseInt(req.query.limit) ? parseInt(req.query.limit) : 10;
   const skip = page - 1 >= 0 ? (page - 1) * limit : 0;
 
-  Job.findOne({
-    _id: jobId,
-    userId: user._id,
+  Application.find({
+    jobId: jobId,
+    recruiterId: user._id,
   })
-    .then((job) => {
-      if (job === null) {
-        res.status(404).json({
-          message: "Job does not exist",
-        });
-        return;
-      }
-      Application.find({
-        jobId: jobId,
-      })
-        .skip(skip)
-        .limit(limit)
-        .then((applications) => {
-          res.json(applications);
-        })
-        .catch((err) => {
-          res.status(400).json(err);
-        });
+    .skip(skip)
+    .limit(limit)
+    .then((applications) => {
+      res.json(applications);
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
+});
+
+// recruiter/applicant gets all his applications [pagination]
+router.get("/applications", jwtAuth, (req, res) => {
+  const user = req.user;
+
+  const page = parseInt(req.query.page) ? parseInt(req.query.page) : 1;
+  const limit = parseInt(req.query.limit) ? parseInt(req.query.limit) : 10;
+  const skip = page - 1 >= 0 ? (page - 1) * limit : 0;
+
+  Application.find({
+    [user.type === "recruiter" ? "recruiterId" : "userId"]: user._id,
+  })
+    .skip(skip)
+    .limit(limit)
+    .then((applications) => {
+      res.json(applications);
     })
     .catch((err) => {
       res.status(400).json(err);
