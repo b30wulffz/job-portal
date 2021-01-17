@@ -5,6 +5,7 @@ const User = require("../db/User");
 const JobApplicant = require("../db/JobApplicant");
 const Recruiter = require("../db/Recruiter");
 const Job = require("../db/Job");
+const Application = require("../db/Application");
 
 const router = express.Router();
 
@@ -45,7 +46,7 @@ router.post("/jobs", jwtAuth, (req, res) => {
     });
 });
 
-// to get all the jobs
+// to get all the jobs [pagination]
 router.get("/jobs", jwtAuth, (req, res) => {
   let findParams = {};
   let sortParams = {};
@@ -406,6 +407,131 @@ router.put("/user", jwtAuth, (req, res) => {
         res.status(400).json(err);
       });
   }
+});
+
+// apply for a job
+router.post("/jobs/:id/applications", jwtAuth, (req, res) => {
+  const user = req.user;
+  if (user.type != "applicant") {
+    res.status(401).json({
+      message: "You don't have permissions to apply for a job",
+    });
+    return;
+  }
+  const data = req.body;
+  const jobId = req.params.id;
+
+  // find job
+  // check count of active applications < limit
+  // check User had < 10 active applications (user id)
+  // store the data in applications
+
+  Job.findOne({ _id: jobId })
+    .then((job) => {
+      if (job === null) {
+        res.status(404).json({
+          message: "Job does not exist",
+        });
+        return;
+      }
+      Application.countDocuments({
+        jobId: jobId,
+        status: {
+          $nin: ["rejected", "deleted"],
+        },
+      })
+        .then((activeApplicationCount) => {
+          if (activeApplicationCount < job.maxApplicants) {
+            Application.countDocuments({
+              userId: user._id,
+              status: {
+                $nin: ["rejected", "deleted"],
+              },
+            })
+              .then((myActiveApplicationCount) => {
+                if (myActiveApplicationCount < 10) {
+                  const application = new Application({
+                    userId: user._id,
+                    jobId: job._id,
+                    status: "applied",
+                    sop: data.sop,
+                  });
+                  application
+                    .save()
+                    .then(() => {
+                      res.json({
+                        message: "Job application successful",
+                      });
+                    })
+                    .catch((err) => {
+                      res.status(400).json(err);
+                    });
+                } else {
+                  res.status(400).json({
+                    message:
+                      "You have 10 active applications. Hence you cannot apply.",
+                  });
+                }
+              })
+              .catch((err) => {
+                res.status(400).json(err);
+              });
+          } else {
+            res.status(400).json({
+              message: "Application limit reached",
+            });
+          }
+        })
+        .catch((err) => {
+          res.status(400).json(err);
+        });
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
+});
+
+// get applications for a particular job [pagination]
+router.get("/jobs/:id/applications", jwtAuth, (req, res) => {
+  const user = req.user;
+  if (user.type != "recruiter") {
+    res.status(401).json({
+      message: "You don't have permissions to apply for a job",
+    });
+    return;
+  }
+  const jobId = req.params.id;
+
+  const page = parseInt(req.query.page) ? parseInt(req.query.page) : 1;
+  const limit = parseInt(req.query.limit) ? parseInt(req.query.limit) : 10;
+  const skip = page - 1 >= 0 ? (page - 1) * limit : 0;
+
+  Job.findOne({
+    _id: jobId,
+    userId: user._id,
+  })
+    .then((job) => {
+      if (job === null) {
+        res.status(404).json({
+          message: "Job does not exist",
+        });
+        return;
+      }
+      Application.find({
+        jobId: jobId,
+      })
+        .skip(skip)
+        .limit(limit)
+        .then((applications) => {
+          res.json(applications);
+        })
+        .catch((err) => {
+          res.status(400).json(err);
+        });
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
 });
 
 // router.get("/jobs", (req, res, next) => {
