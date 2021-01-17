@@ -6,6 +6,7 @@ const JobApplicant = require("../db/JobApplicant");
 const Recruiter = require("../db/Recruiter");
 const Job = require("../db/Job");
 const Application = require("../db/Application");
+const { application } = require("express");
 
 const router = express.Router();
 
@@ -419,7 +420,7 @@ router.put("/user", jwtAuth, (req, res) => {
   }
 });
 
-// apply for a job
+// apply for a job [todo: test]
 router.post("/jobs/:id/applications", jwtAuth, (req, res) => {
   const user = req.user;
   if (user.type != "applicant") {
@@ -433,7 +434,7 @@ router.post("/jobs/:id/applications", jwtAuth, (req, res) => {
 
   // find job
   // check count of active applications < limit
-  // check User had < 10 active applications (user id)
+  // check user had < 10 active applications && check if user is not having any accepted jobs (user id)
   // store the data in applications
 
   Job.findOne({ _id: jobId })
@@ -447,7 +448,7 @@ router.post("/jobs/:id/applications", jwtAuth, (req, res) => {
       Application.countDocuments({
         jobId: jobId,
         status: {
-          $nin: ["rejected", "deleted"],
+          $nin: ["rejected", "deleted", "cancelled", "finished"],
         },
       })
         .then((activeApplicationCount) => {
@@ -455,28 +456,40 @@ router.post("/jobs/:id/applications", jwtAuth, (req, res) => {
             Application.countDocuments({
               userId: user._id,
               status: {
-                $nin: ["rejected", "deleted"],
+                $nin: ["rejected", "deleted", "cancelled", "finished"],
               },
             })
               .then((myActiveApplicationCount) => {
                 if (myActiveApplicationCount < 10) {
-                  const application = new Application({
+                  Application.countDocuments({
                     userId: user._id,
-                    recruiterId: job.userId,
-                    jobId: job._id,
-                    status: "applied",
-                    sop: data.sop,
-                  });
-                  application
-                    .save()
-                    .then(() => {
-                      res.json({
-                        message: "Job application successful",
+                    status: "accepted",
+                  }).then((acceptedJobs) => {
+                    if (acceptedJobs === 0) {
+                      const application = new Application({
+                        userId: user._id,
+                        recruiterId: job.userId,
+                        jobId: job._id,
+                        status: "applied",
+                        sop: data.sop,
                       });
-                    })
-                    .catch((err) => {
-                      res.status(400).json(err);
-                    });
+                      application
+                        .save()
+                        .then(() => {
+                          res.json({
+                            message: "Job application successful",
+                          });
+                        })
+                        .catch((err) => {
+                          res.status(400).json(err);
+                        });
+                    } else {
+                      res.status(400).json({
+                        message:
+                          "You already have an accepted job. Hence you cannot apply.",
+                      });
+                    }
+                  });
                 } else {
                   res.status(400).json({
                     message:
@@ -551,6 +564,184 @@ router.get("/applications", jwtAuth, (req, res) => {
       res.status(400).json(err);
     });
 });
+
+// update status of application: [Applicant: Can cancel, Recruiter: Can do everything] [todo: test]
+router.put("/applications/:id", jwtAuth, (req, res) => {
+  const user = req.user;
+  const id = req.params.id;
+  const status = req.body.status;
+
+  // "applied", // when a applicant is applied
+  // "shortlisted", // when a applicant is shortlisted
+  // "accepted", // when a applicant is accepted
+  // "rejected", // when a applicant is rejected
+  // "deleted", // when any job is deleted
+  // "cancelled", // an application is cancelled by its author or when other application is accepted
+  // "finished", // when job is over
+
+  if (user.type === "recruiter") {
+    if (status === "accepted") {
+      // get job id from application
+      // get job info for maxPositions count
+      // count applications that are already accepted
+      // compare and if condition is satisfied, then save
+
+      Application.findOne({
+        _id: id,
+        recruiterId: user._id,
+      })
+        .then((application) => {
+          if (application === null) {
+            res.status(404).json({
+              message: "Application not found",
+            });
+            return;
+          }
+
+          Job.findOne({
+            _id: application.jobId,
+            userId: user._id,
+          }).then((job) => {
+            if (job === null) {
+              res.status(404).json({
+                message: "Job does not exist",
+              });
+              return;
+            }
+
+            Application.countDocuments({
+              recruiterId: user._id,
+              jobId: job._id,
+              status: "accepted",
+            }).then((activeApplicationCount) => {
+              if (activeApplicationCount < job.maxPositions) {
+                // accepted
+                application.status = status;
+                application
+                  .save()
+                  .then(() => {
+                    Application.updateMany(
+                      {
+                        _id: {
+                          $ne: application._id,
+                        },
+                        userId: application.userId,
+                        status: {
+                          $nin: [
+                            "rejected",
+                            "deleted",
+                            "cancelled",
+                            "accepted",
+                            "finished",
+                          ],
+                        },
+                      },
+                      {
+                        $set: {
+                          status: "cancelled",
+                        },
+                      },
+                      { multi: true }
+                    )
+                      .then(() => {
+                        res.json({
+                          message: `Application ${status} successfully`,
+                        });
+                      })
+                      .catch((err) => {
+                        res.status(400).json(err);
+                      });
+                  })
+                  .catch((err) => {
+                    res.status(400).json(err);
+                  });
+              } else {
+                res.status(400).json({
+                  message: "All positions for this job are already filled",
+                });
+              }
+            });
+          });
+        })
+        .catch((err) => {
+          res.status(400).json(err);
+        });
+    } else {
+      Application.findOneAndUpdate(
+        {
+          _id: id,
+          recruiterId: user._id,
+        },
+        {
+          $set: {
+            status: status,
+          },
+        }
+      )
+        .then(() => {
+          if (status === "finished") {
+            res.json({
+              message: `Job ${status} successfully`,
+            });
+          } else {
+            res.json({
+              message: `Application ${status} successfully`,
+            });
+          }
+        })
+        .catch((err) => {
+          res.status(400).json(err);
+        });
+    }
+  } else {
+    if (status === "cancelled") {
+      Application.findOneAndUpdate(
+        {
+          _id: id,
+          userId: user._id,
+        },
+        {
+          $set: {
+            status: status,
+          },
+        }
+      )
+        .then(() => {
+          res.json({
+            message: `Application ${status} successfully`,
+          });
+        })
+        .catch((err) => {
+          res.status(400).json(err);
+        });
+    } else {
+      res.json(401).json({
+        message: "You don't have permissions to update job status",
+      });
+    }
+  }
+});
+
+// Application.findOne({
+//   _id: id,
+//   userId: user._id,
+// })
+//   .then((application) => {
+//     application.status = status;
+//     application
+//       .save()
+//       .then(() => {
+//         res.json({
+//           message: `Application ${status} successfully`,
+//         });
+//       })
+//       .catch((err) => {
+//         res.status(400).json(err);
+//       });
+//   })
+//   .catch((err) => {
+//     res.status(400).json(err);
+//   });
 
 // router.get("/jobs", (req, res, next) => {
 //   passport.authenticate("jwt", { session: false }, function (err, user, info) {
