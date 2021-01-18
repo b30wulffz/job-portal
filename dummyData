@@ -1,0 +1,217 @@
+
+POST
+localhost:4444/auth/signup
+
+// recruiter
+
+{
+    "email": "john@gmail.com",
+    "password": "test",
+    "type": "recruiter",
+    "name": "John Smith",
+    "contactNumber": "+91-7979282839",
+    "bio": "I am a recruiter from Google Inc"
+}
+
+{
+    "email": "roman@live.in",
+    "password": "test",
+    "type": "recruiter",
+    "name": "Roman Reigns",
+    "contactNumber": "+91-8879456123",
+    "bio": "I am a recruiter from Amazon Inc"
+}
+
+// applicant
+
+{
+    "email": "shlok@gmail.com",
+    "password": "test",
+    "type": "applicant",
+    "name": "Shlok Pandey",
+    "education": [
+        {
+            "institutionName": "DPS Azaad Nagar",
+            "startYear": 2009,
+            "endYear": 2018
+        },
+        {
+            "institutionName": "IIIT Sri City",
+            "startYear": 2018,
+            "endYear": 2020
+        },
+        {
+            "institutionName": "IIIT Hyderabad",
+            "startYear": 2020
+        }
+    ],
+    "skills": [
+        "JavaScript",
+        "React JS",
+        "Django"
+    ]
+}
+
+{
+    "email": "ash@gmail.com",
+    "password": "test",
+    "type": "applicant",
+    "name": "Ashwani Shukla",
+    "education": [
+        {
+            "institutionName": "Allenhouse College",
+            "startYear": 2019
+        }
+    ],
+    "skills": [
+        "C",
+        "C++",
+        "Web Development"
+    ]
+}
+
+// Login
+
+POST
+localhost:4444/auth/login
+
+
+{
+    "email": "john@gmail.com",
+    "password": "test",
+    "type": "recruiter"
+}
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDA1NzMzNWMzNWQ1NTJlMDU5NzA1YzYiLCJpYXQiOjE2MTA5Njk5MDl9.6f4qhjHIaRU_lnY74WB2mK_h7uo32tp1V4uf3DVN5GQ"
+}
+
+{
+    "email": "roman@live.in",
+    "password": "test",
+    "type": "recruiter"
+}
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDA1NzM2N2MzNWQ1NTJlMDU5NzA1YzkiLCJpYXQiOjE2MTA5Njk5NTl9.KVjgEa8U0BcZQ4pfJd1mr2h-CP6ZBOJKanFhmQQFDPo"
+}
+
+{
+    "email": "shlok@gmail.com",
+    "password": "test",
+    "type": "applicant"
+}
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDA1NzM4YWMzNWQ1NTJlMDU5NzA1Y2IiLCJpYXQiOjE2MTA5Njk5OTR9.8pb8nBN0npAT_uW-2OJV8DuqXDJlPy_HOjm_MdQUwLA"
+}
+
+{
+    "email": "ash@gmail.com",
+    "password": "test",
+    "type": "applicant"
+}
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDA1NzNhMWMzNWQ1NTJlMDU5NzA1ZDAiLCJpYXQiOjE2MTA5NzAwMTd9.oL617v51AErVlaPGr1oP-5ILQbA9DO2DAoQRFtLh52U"
+}
+
+// jobs
+
+GET
+localhost:4444/api/jobs
+
+POST
+localhost:4444/api/jobs
+
+Admin 1
+
+{
+    "title": "Software Development Intern",
+    "maxApplicants": 5,
+    "maxPositions": 1,
+    "deadline": "2021-02-22T18:17:24.519Z",
+    "skillsets": ["C", "C++", "Javascript"],
+    "jobType": "Internship",
+    "duration": 2,
+    "salary": 4000
+}
+
+{
+    "title": "Web Development(Full Time)",
+    "maxApplicants": 1,
+    "maxPositions": 1,
+    "deadline": "2021-02-20T18:17:24.519Z",
+    "skillsets": ["PHP", "Django"],
+    "jobType": "Full Time",
+    "duration": 0,
+    "salary": 5000
+}
+
+Admin 2
+
+{
+    "title": "Full Stack Intern",
+    "maxApplicants": 5,
+    "maxPositions": 3,
+    "deadline": "2021-02-20T18:17:24.519Z",
+    "skillsets": ["ReactJS", "NodeJS", "Express"],
+    "jobType": "Internship",
+    "duration": 5,
+    "salary": 4500
+}
+
+// view a job
+// delete a job
+
+// update a job
+
+{
+    "maxApplicants": 4,
+    "maxPositions": 2,
+    "deadline": "2021-02-21T18:17:24.519Z"
+}
+
+
+// get user personal details
+GET
+localhost:4444/api/user
+
+// update user details
+PUT
+localhost:4444/api/user
+
+{
+    "name": "Roman Rollins",
+    "contactNumber": "+91-8945659878",
+    "bio": "I am a recruiter from Flipkart Inc",
+}
+
+// job application
+
+{
+    "sop": "I wouldn't let you down"
+}
+
+{
+    "sop": "I hope you like my resume."
+}
+
+// update status
+
+// for client side
+{
+    "status": "cancelled"
+}
+
+{
+    "status": "shortlisted"
+}
+
+{
+    "status": "rejected"
+}
+
+{
+    "status": "accepted"
+}

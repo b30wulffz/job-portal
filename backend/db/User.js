@@ -15,6 +15,7 @@ let schema = new mongoose.Schema({
   },
   type: {
     type: String,
+    enum: ["recruiter", "applicant"],
     required: true,
   },
 });

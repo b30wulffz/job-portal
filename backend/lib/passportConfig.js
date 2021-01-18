@@ -25,7 +25,7 @@ passport.use(
       passReqToCallback: true,
     },
     (req, email, password, done, res) => {
-      console.log(email, password);
+      // console.log(email, password);
       User.findOne({ email: email }, (err, user) => {
         if (err) {
           return done(err);

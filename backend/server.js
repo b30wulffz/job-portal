@@ -5,7 +5,7 @@ const passportConfig = require("./lib/passportConfig");
 
 // MongoDB
 mongoose
-  .connect("mongodb://localhost:27017/assign1", {
+  .connect("mongodb://localhost:27017/assign1a", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,
