@@ -605,7 +605,7 @@ router.get("/applications", jwtAuth, (req, res) => {
     });
 });
 
-// update status of application: [Applicant: Can cancel, Recruiter: Can do everything] [todo: test]
+// update status of application: [Applicant: Can cancel, Recruiter: Can do everything] [todo: test: done]
 router.put("/applications/:id", jwtAuth, (req, res) => {
   const user = req.user;
   const id = req.params.id;
@@ -744,6 +744,8 @@ router.put("/applications/:id", jwtAuth, (req, res) => {
     }
   } else {
     if (status === "cancelled") {
+      console.log(id);
+      console.log(user._id);
       Application.findOneAndUpdate(
         {
           _id: id,
@@ -755,7 +757,8 @@ router.put("/applications/:id", jwtAuth, (req, res) => {
           },
         }
       )
-        .then(() => {
+        .then((tmp) => {
+          console.log(tmp);
           res.json({
             message: `Application ${status} successfully`,
           });
@@ -788,6 +791,7 @@ router.put("/rating", jwtAuth, (req, res) => {
     })
       .then((rating) => {
         if (rating === null) {
+          console.log("new rating");
           Application.countDocuments({
             userId: data.applicantId,
             recruiterId: user._id,
@@ -819,16 +823,24 @@ router.put("/rating", jwtAuth, (req, res) => {
                       },
                       {
                         $group: {
+                          _id: {},
                           average: { $avg: "$rating" },
                         },
                       },
                     ])
-                      .then((avg) => {
+                      .then((result) => {
                         // update the user's rating
-                        console.log(avg);
+                        if (result === null) {
+                          res.status(400).json({
+                            message: "Error while calculating rating",
+                          });
+                          return;
+                        }
+                        const avg = result[0].average;
+
                         JobApplicant.findOneAndUpdate(
                           {
-                            _id: data.applicantId,
+                            userId: data.applicantId,
                           },
                           {
                             $set: {
@@ -836,21 +848,28 @@ router.put("/rating", jwtAuth, (req, res) => {
                             },
                           }
                         )
-                          .then(() => {
+                          .then((applicant) => {
+                            if (applicant === null) {
+                              res.status(400).json({
+                                message:
+                                  "Error while updating applicant's average rating",
+                              });
+                              return;
+                            }
                             res.json({
                               message: "Rating added successfully",
                             });
                           })
                           .catch((err) => {
-                            res.error(400).json(err);
+                            res.status(400).json(err);
                           });
                       })
                       .catch((err) => {
-                        res.error(400).json(err);
+                        res.status(400).json(err);
                       });
                   })
                   .catch((err) => {
-                    res.error(400).json(err);
+                    res.status(400).json(err);
                   });
               } else {
                 // you cannot rate
@@ -861,7 +880,7 @@ router.put("/rating", jwtAuth, (req, res) => {
               }
             })
             .catch((err) => {
-              res.error(400).json(err);
+              res.status(400).json(err);
             });
         } else {
           rating.rating = data.rating;
@@ -878,16 +897,23 @@ router.put("/rating", jwtAuth, (req, res) => {
                 },
                 {
                   $group: {
+                    _id: {},
                     average: { $avg: "$rating" },
                   },
                 },
               ])
-                .then((avg) => {
+                .then((result) => {
                   // update the user's rating
-                  console.log(avg);
+                  if (result === null) {
+                    res.status(400).json({
+                      message: "Error while calculating rating",
+                    });
+                    return;
+                  }
+                  const avg = result[0].average;
                   JobApplicant.findOneAndUpdate(
                     {
-                      _id: data.applicantId,
+                      userId: data.applicantId,
                     },
                     {
                       $set: {
@@ -895,26 +921,33 @@ router.put("/rating", jwtAuth, (req, res) => {
                       },
                     }
                   )
-                    .then(() => {
+                    .then((applicant) => {
+                      if (applicant === null) {
+                        res.status(400).json({
+                          message:
+                            "Error while updating applicant's average rating",
+                        });
+                        return;
+                      }
                       res.json({
-                        message: "Rating added successfully",
+                        message: "Rating updated successfully",
                       });
                     })
                     .catch((err) => {
-                      res.error(400).json(err);
+                      res.status(400).json(err);
                     });
                 })
                 .catch((err) => {
-                  res.error(400).json(err);
+                  res.status(400).json(err);
                 });
             })
             .catch((err) => {
-              res.error(400).json(err);
+              res.status(400).json(err);
             });
         }
       })
       .catch((err) => {
-        res.error(400).json(err);
+        res.status(400).json(err);
       });
   } else {
     // applicant can rate job
@@ -956,13 +989,19 @@ router.put("/rating", jwtAuth, (req, res) => {
                       },
                       {
                         $group: {
+                          _id: {},
                           average: { $avg: "$rating" },
                         },
                       },
                     ])
-                      .then((avg) => {
-                        // update the user's rating
-                        console.log(avg);
+                      .then((result) => {
+                        if (result === null) {
+                          res.status(400).json({
+                            message: "Error while calculating rating",
+                          });
+                          return;
+                        }
+                        const avg = result[0].average;
                         Job.findOneAndUpdate(
                           {
                             _id: data.jobId,
@@ -973,32 +1012,39 @@ router.put("/rating", jwtAuth, (req, res) => {
                             },
                           }
                         )
-                          .then(() => {
+                          .then((foundJob) => {
+                            if (foundJob === null) {
+                              res.status(400).json({
+                                message:
+                                  "Error while updating job's average rating",
+                              });
+                              return;
+                            }
                             res.json({
                               message: "Rating added successfully",
                             });
                           })
                           .catch((err) => {
-                            res.error(400).json(err);
+                            res.status(400).json(err);
                           });
                       })
                       .catch((err) => {
-                        res.error(400).json(err);
+                        res.status(400).json(err);
                       });
                   })
                   .catch((err) => {
-                    res.error(400).json(err);
+                    res.status(400).json(err);
                   });
               } else {
                 // you cannot rate
                 res.status(400).json({
                   message:
-                    "Applicant didn't worked under you. Hence you cannot give a rating.",
+                    "You haven't worked for this job. Hence you cannot give a rating.",
                 });
               }
             })
             .catch((err) => {
-              res.error(400).json(err);
+              res.status(400).json(err);
             });
         } else {
           // update the rating
@@ -1016,13 +1062,19 @@ router.put("/rating", jwtAuth, (req, res) => {
                 },
                 {
                   $group: {
+                    _id: {},
                     average: { $avg: "$rating" },
                   },
                 },
               ])
-                .then((avg) => {
-                  // update the user's rating
-                  console.log(avg);
+                .then((result) => {
+                  if (result === null) {
+                    res.status(400).json({
+                      message: "Error while calculating rating",
+                    });
+                    return;
+                  }
+                  const avg = result[0].average;
                   Job.findOneAndUpdate(
                     {
                       _id: data.jobId,
@@ -1033,26 +1085,32 @@ router.put("/rating", jwtAuth, (req, res) => {
                       },
                     }
                   )
-                    .then(() => {
+                    .then((foundJob) => {
+                      if (foundJob === null) {
+                        res.status(400).json({
+                          message: "Error while updating job's average rating",
+                        });
+                        return;
+                      }
                       res.json({
                         message: "Rating added successfully",
                       });
                     })
                     .catch((err) => {
-                      res.error(400).json(err);
+                      res.status(400).json(err);
                     });
                 })
                 .catch((err) => {
-                  res.error(400).json(err);
+                  res.status(400).json(err);
                 });
             })
             .catch((err) => {
-              res.error(400).json(err);
+              res.status(400).json(err);
             });
         }
       })
       .catch((err) => {
-        res.error(400).json(err);
+        res.status(400).json(err);
       });
   }
 });
