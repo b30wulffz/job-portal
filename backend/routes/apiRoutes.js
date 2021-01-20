@@ -778,6 +778,43 @@ router.put("/applications/:id", jwtAuth, (req, res) => {
 
 // get a list of final applicants for all his jobs : recuiter
 
+// router.get("/applicants", jwtAuth, (req, res) => {
+//   const user = req.user;
+//   if (user.type === "recruiter") {
+//     const findParams = {
+//       recruiterId: user._id,
+//     };
+//     if (req.query.jobId) {
+//       findParams = {
+//         ...findParams,
+//         jobId: req.query.jobId,
+//       };
+//     }
+//     const sortParams = {};
+//     Application.find(findParams)
+//       .then((applications) => {
+//         if (applications.length === 0) {
+//           res.status(404).json({
+//             message: "No applicants found",
+//           });
+//           return;
+//         }
+
+//         applications.map((application)=>{
+
+//         })
+
+//       })
+//       .catch((err) => {
+//         res.status(400).json(err);
+//       });
+//   } else {
+//     res.status(400).json({
+//       message: "You are not allowed to access applicants list",
+//     });
+//   }
+// });
+
 // to add or update a rating [todo: test]
 router.put("/rating", jwtAuth, (req, res) => {
   const user = req.user;
@@ -1113,6 +1150,26 @@ router.put("/rating", jwtAuth, (req, res) => {
         res.status(400).json(err);
       });
   }
+});
+
+// get personal rating
+router.get("/rating", jwtAuth, (req, res) => {
+  const user = req.user;
+  Rating.findOne({
+    senderId: user._id,
+    receiverId: req.query.id,
+    category: user.type === "recruiter" ? "applicant" : "job",
+  }).then((rating) => {
+    if (rating === null) {
+      res.json({
+        rating: -1,
+      });
+      return;
+    }
+    res.json({
+      rating: rating.rating,
+    });
+  });
 });
 
 // Application.findOne({
