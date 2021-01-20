@@ -87,6 +87,14 @@ localhost:4444/auth/login
 }
 
 {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDA4NTk5ZTIwODQyZjA1YTE3NzU4ZjkiLCJpYXQiOjE2MTExNTk5NjZ9.DIGyjwezwheqFkex0dZSIOEKrEUXXSNka9Va2B2rYVc"
+}
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDA4Njg0Mzk1ZTUxMDIwYmI2OTVlZGEiLCJpYXQiOjE2MTExNjM3MTV9.6UlyrgwLvM0o8tXcihJVWTnnJNO0WlBXAAF8RKmlgRQ"
+}
+
+{
     "email": "roman@live.in",
     "password": "test",
     "type": "recruiter"
@@ -94,6 +102,13 @@ localhost:4444/auth/login
 
 {
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDA1NzM2N2MzNWQ1NTJlMDU5NzA1YzkiLCJpYXQiOjE2MTA5Njk5NTl9.KVjgEa8U0BcZQ4pfJd1mr2h-CP6ZBOJKanFhmQQFDPo"
+}
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDA4NTllNDIwODQyZjA1YTE3NzU4ZmMiLCJpYXQiOjE2MTExNjAwMzZ9.FA0jrx3d1en4zP3ElDkRtUV1pulgPDIpVeXOfBTIy80"
+}
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDA4Njg1OTk1ZTUxMDIwYmI2OTVlZGMiLCJpYXQiOjE2MTExNjM3Mzd9.zLS_VltLBVTXcGqzO4jGjrZ4OagxL2U5MXjcdLn5jNY"
 }
 
 {
@@ -107,6 +122,13 @@ localhost:4444/auth/login
 }
 
 {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDA4NWEwMjIwODQyZjA1YTE3NzU4ZmUiLCJpYXQiOjE2MTExNjAwNjZ9.P4NLHyah0O6ISH4LSkEAna7g-YovyM1ArnVGJ54TcEw"
+}
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDA4Njg2Yzk1ZTUxMDIwYmI2OTVlZGUiLCJpYXQiOjE2MTExNjM3NTd9.UuqeMrMGYGJ3tJtvs8Z9VgLxqIF6QUHKjU9EIbQ8Pjc"
+}
+
+{
     "email": "ash@gmail.com",
     "password": "test",
     "type": "applicant"
@@ -114,6 +136,14 @@ localhost:4444/auth/login
 
 {
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDA1NzNhMWMzNWQ1NTJlMDU5NzA1ZDAiLCJpYXQiOjE2MTA5NzAwMTd9.oL617v51AErVlaPGr1oP-5ILQbA9DO2DAoQRFtLh52U"
+}
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDA4NWExNjIwODQyZjA1YTE3NzU5MDMiLCJpYXQiOjE2MTExNjAwODd9.YoYpauFDzF28ZzKkeItbRPdcqw8biNKujNfZCGCKibw"
+}
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDA4Njg4Mzk1ZTUxMDIwYmI2OTVlZTMiLCJpYXQiOjE2MTExNjM3Nzl9.iFPFXu3aOax6muoCzNJavGSKa9s87S5AIXTiHvJ0OSQ"
 }
 
 // jobs
@@ -190,11 +220,11 @@ localhost:4444/api/user
 // job application
 
 {
-    "sop": "I wouldn't let you down"
+    "sop": "Shlok: I wouldn't let you down"
 }
 
 {
-    "sop": "I hope you like my resume."
+    "sop": "Ashwani: I hope you like my resume."
 }
 
 // update status
@@ -214,4 +244,25 @@ localhost:4444/api/user
 
 {
     "status": "accepted"
+}
+
+{
+    "status": "finished"
+}
+
+// test rating
+
+{
+    "applicantId": "6005738ac35d552e059705cb",
+    "rating": 4.2
+}
+
+{
+    "applicantId": "600573a1c35d552e059705d0",
+    "rating": 3.5
+}
+
+{
+    "jobId": "600576e16ce7b7325f5b5c70",
+    "rating": 2.0
 }
