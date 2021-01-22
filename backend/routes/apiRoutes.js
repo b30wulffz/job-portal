@@ -685,9 +685,31 @@ router.put("/applications/:id", jwtAuth, (req, res) => {
                       { multi: true }
                     )
                       .then(() => {
-                        res.json({
-                          message: `Application ${status} successfully`,
-                        });
+                        if (status === "accepted") {
+                          Job.findOneAndUpdate(
+                            {
+                              _id: job._id,
+                              userId: user._id,
+                            },
+                            {
+                              $set: {
+                                acceptedCandidates: activeApplicationCount + 1,
+                              },
+                            }
+                          )
+                            .then(() => {
+                              res.json({
+                                message: `Application ${status} successfully`,
+                              });
+                            })
+                            .catch((err) => {
+                              res.status(400).json(err);
+                            });
+                        } else {
+                          res.json({
+                            message: `Application ${status} successfully`,
+                          });
+                        }
                       })
                       .catch((err) => {
                         res.status(400).json(err);
