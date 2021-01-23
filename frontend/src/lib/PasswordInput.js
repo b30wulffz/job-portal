@@ -5,6 +5,7 @@ import {
   OutlinedInput,
   InputAdornment,
   IconButton,
+  FormHelperText,
 } from "@material-ui/core";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
@@ -22,12 +23,10 @@ const PasswordInput = (props) => {
 
   return (
     <>
-      <FormControl
-        // className={clsx(classes.margin, classes.textField)}
-        variant="outlined"
-      >
-        <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
-
+      <FormControl variant="outlined" error={props.error ? props.error : null}>
+        <InputLabel htmlFor="outlined-adornment-password">
+          {props.label}
+        </InputLabel>
         <OutlinedInput
           id="outlined-adornment-password"
           type={showPassword ? "text" : "password"}
@@ -44,8 +43,13 @@ const PasswordInput = (props) => {
           }
           value={props.value}
           onChange={(event) => props.onChange(event)}
-          labelWidth={70}
+          labelWidth={props.labelWidth ? props.labelWidth : 70}
+          className={props.className}
+          onBlur={props.onBlur ? props.onBlur : null}
         />
+        {props.helperText ? (
+          <FormHelperText>{props.helperText}</FormHelperText>
+        ) : null}
       </FormControl>
     </>
   );

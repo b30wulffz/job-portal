@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { Grid, TextField, Button, Typography } from "@material-ui/core";
+import {
+  Grid,
+  TextField,
+  Button,
+  Typography,
+  makeStyles,
+  Paper,
+} from "@material-ui/core";
 import axios from "axios";
 import { Redirect } from "react-router-dom";
 
@@ -9,7 +16,20 @@ import EmailInput from "../lib/EmailInput";
 import apiList from "../lib/apiList";
 import isAuth from "../lib/isAuth";
 
+const useStyles = makeStyles((theme) => ({
+  body: {
+    padding: "60px 60px",
+  },
+  inputBox: {
+    width: "300px",
+  },
+  submitButton: {
+    width: "300px",
+  },
+}));
+
 const Login = (props) => {
+  const classes = useStyles();
   const [loggedin, setLoggedin] = useState(isAuth());
 
   const [loginDetails, setLoginDetails] = useState({
@@ -22,12 +42,26 @@ const Login = (props) => {
       error: false,
       message: "",
     },
+    password: {
+      error: false,
+      message: "",
+    },
   });
 
   const handleInput = (key, value) => {
     setLoginDetails({
       ...loginDetails,
       [key]: value,
+    });
+  };
+
+  const handleInputError = (key, status, message) => {
+    setInputErrorHandler({
+      ...inputErrorHandler,
+      [key]: {
+        error: status,
+        message: message,
+      },
     });
   };
 
@@ -68,8 +102,8 @@ const Login = (props) => {
   return loggedin ? (
     <Redirect to="/" />
   ) : (
-    <>
-      <Grid container direction="column" spacing={3}>
+    <Paper elevation={3} className={classes.body}>
+      <Grid container direction="column" spacing={4} alignItems="center">
         <Grid item>
           <Typography variant="h3" component="h2">
             Login
@@ -81,8 +115,8 @@ const Login = (props) => {
             value={loginDetails.email}
             onChange={(event) => handleInput("email", event.target.value)}
             inputErrorHandler={inputErrorHandler}
-            setInputErrorHandler={setInputErrorHandler}
-            required={true}
+            handleInputError={handleInputError}
+            className={classes.inputBox}
           />
         </Grid>
         <Grid item>
@@ -90,6 +124,7 @@ const Login = (props) => {
             label="Password"
             value={loginDetails.password}
             onChange={(event) => handleInput("password", event.target.value)}
+            className={classes.inputBox}
           />
         </Grid>
         <Grid item>
@@ -97,12 +132,13 @@ const Login = (props) => {
             variant="contained"
             color="primary"
             onClick={() => handleLogin()}
+            className={classes.submitButton}
           >
             Login
           </Button>
         </Grid>
       </Grid>
-    </>
+    </Paper>
   );
 };
 

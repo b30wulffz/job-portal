@@ -30,7 +30,7 @@ const Navbar = (props) => {
   };
 
   return (
-    <AppBar position="static">
+    <AppBar position="fixed">
       <Toolbar>
         <Typography variant="h6" className={classes.title}>
           Job Portal
