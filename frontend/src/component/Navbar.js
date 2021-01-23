@@ -5,6 +5,8 @@ import {
   Button,
   makeStyles,
 } from "@material-ui/core";
+import { useHistory } from "react-router-dom";
+
 import isAuth from "../lib/isAuth";
 
 const useStyles = makeStyles((theme) => ({
@@ -21,6 +23,12 @@ const useStyles = makeStyles((theme) => ({
 
 const Navbar = (props) => {
   const classes = useStyles();
+  let history = useHistory();
+
+  const handleClick = (location) => {
+    history.push(location);
+  };
+
   return (
     <AppBar position="static">
       <Toolbar>
@@ -31,12 +39,18 @@ const Navbar = (props) => {
           <>
             <Button color="inherit">Dashboard</Button>
             <Button color="inherit">Jobs</Button>
-            <Button color="inherit">Logout</Button>
+            <Button color="inherit" onClick={() => handleClick("/logout")}>
+              Logout
+            </Button>
           </>
         ) : (
           <>
-            <Button color="inherit">Login</Button>
-            <Button color="inherit">Signup</Button>
+            <Button color="inherit" onClick={() => handleClick("/login")}>
+              Login
+            </Button>
+            <Button color="inherit" onClick={() => handleClick("/signup")}>
+              Signup
+            </Button>
           </>
         )}
       </Toolbar>

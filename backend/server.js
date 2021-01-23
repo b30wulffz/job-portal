@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const passportConfig = require("./lib/passportConfig");
+const cors = require("cors");
 
 // MongoDB
 mongoose
@@ -21,6 +22,7 @@ app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 // Setting up middlewares
+app.use(cors());
 app.use(express.json());
 app.use(passportConfig.initialize());
 
