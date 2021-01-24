@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import {
   Grid,
   TextField,
@@ -12,9 +12,13 @@ import {
 import axios from "axios";
 import { Redirect } from "react-router-dom";
 import ChipInput from "material-ui-chip-input";
+import DescriptionIcon from "@material-ui/icons/Description";
+import FaceIcon from "@material-ui/icons/Face";
 
 import PasswordInput from "../lib/PasswordInput";
 import EmailInput from "../lib/EmailInput";
+import FileUploadInput from "../lib/FileUploadInput";
+import { SetPopupContext } from "../App";
 
 import apiList from "../lib/apiList";
 import isAuth from "../lib/isAuth";
@@ -110,6 +114,8 @@ const MultifieldInput = (props) => {
 
 const Login = (props) => {
   const classes = useStyles();
+  const setPopup = useContext(SetPopupContext);
+
   const [loggedin, setLoggedin] = useState(isAuth());
 
   const [signupDetails, setSignupDetails] = useState({
@@ -212,7 +218,7 @@ const Login = (props) => {
         .then((response) => {
           localStorage.setItem("token", response.data.token);
           setLoggedin(isAuth());
-          props.setPopup({
+          setPopup({
             open: true,
             severity: "success",
             message: "Logged in successfully",
@@ -220,7 +226,7 @@ const Login = (props) => {
           console.log(response);
         })
         .catch((err) => {
-          props.setPopup({
+          setPopup({
             open: true,
             severity: "error",
             message: err.response.data.message,
@@ -229,7 +235,7 @@ const Login = (props) => {
         });
     } else {
       setInputErrorHandler(tmpErrorHandler);
-      props.setPopup({
+      setPopup({
         open: true,
         severity: "error",
         message: "Incorrect Input",
@@ -323,6 +329,40 @@ const Login = (props) => {
                 onChange={(chips) =>
                   setSignupDetails({ ...signupDetails, skills: chips })
                 }
+              />
+            </Grid>
+            <Grid item>
+              <FileUploadInput
+                className={classes.inputBox}
+                label="Resume (.pdf)"
+                icon={<DescriptionIcon />}
+                // value={files.resume}
+                // onChange={(event) =>
+                //   setFiles({
+                //     ...files,
+                //     resume: event.target.files[0],
+                //   })
+                // }
+                uploadTo={apiList.uploadResume}
+                handleInput={handleInput}
+                identifier={"resume"}
+              />
+            </Grid>
+            <Grid item>
+              <FileUploadInput
+                className={classes.inputBox}
+                label="Profile Photo (.jpg/.png)"
+                icon={<FaceIcon />}
+                // value={files.profileImage}
+                // onChange={(event) =>
+                //   setFiles({
+                //     ...files,
+                //     profileImage: event.target.files[0],
+                //   })
+                // }
+                uploadTo={apiList.uploadProfileImage}
+                handleInput={handleInput}
+                identifier={"profile"}
               />
             </Grid>
           </>

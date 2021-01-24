@@ -1,6 +1,10 @@
+export const server = "http://localhost:4444";
+
 const apiList = {
-  login: "http://localhost:4444/auth/login",
-  signup: "http://localhost:4444/auth/signup",
+  login: `${server}/auth/login`,
+  signup: `${server}/auth/signup`,
+  uploadResume: `${server}/upload/resume`,
+  uploadProfileImage: `${server}/upload/profile`,
 };
 
 export default apiList;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   Grid,
   TextField,
@@ -12,6 +12,7 @@ import { Redirect } from "react-router-dom";
 
 import PasswordInput from "../lib/PasswordInput";
 import EmailInput from "../lib/EmailInput";
+import { SetPopupContext } from "../App";
 
 import apiList from "../lib/apiList";
 import isAuth from "../lib/isAuth";
@@ -30,6 +31,8 @@ const useStyles = makeStyles((theme) => ({
 
 const Login = (props) => {
   const classes = useStyles();
+  const setPopup = useContext(SetPopupContext);
+
   const [loggedin, setLoggedin] = useState(isAuth());
 
   const [loginDetails, setLoginDetails] = useState({
@@ -75,7 +78,7 @@ const Login = (props) => {
         .then((response) => {
           localStorage.setItem("token", response.data.token);
           setLoggedin(isAuth());
-          props.setPopup({
+          setPopup({
             open: true,
             severity: "success",
             message: "Logged in successfully",
@@ -83,7 +86,7 @@ const Login = (props) => {
           console.log(response);
         })
         .catch((err) => {
-          props.setPopup({
+          setPopup({
             open: true,
             severity: "error",
             message: err.response.data.message,
@@ -91,7 +94,7 @@ const Login = (props) => {
           console.log(err.response);
         });
     } else {
-      props.setPopup({
+      setPopup({
         open: true,
         severity: "error",
         message: "Incorrect Input",

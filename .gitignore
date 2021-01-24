@@ -1,37 +1,3 @@
-Skip to content
- 
-Search or jump to…
-
-Pull requests
-Issues
-Marketplace
-Explore
- 
-@b30wulffz 
-b30wulffz
-/
-job-portal
-Private
-1
-0
-0
-Code
-Issues
-Pull requests
-Actions
-Projects
-Wiki
-Security
-Insights
-Settings
-job-portal/.gitignore
-@b30wulffz
-b30wulffz Initial commit
-Latest commit 91a4e59 18 seconds ago
- History
- 1 contributor
-104 lines (76 sloc)  1.57 KB
-  
 # Logs
 logs
 *.log
@@ -150,3 +116,6 @@ Blog
 About
 Octotree
  Login with GitHub
+
+backend/public/profile/*
+backend/public/resume/*
