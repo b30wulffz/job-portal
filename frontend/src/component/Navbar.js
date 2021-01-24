@@ -7,7 +7,7 @@ import {
 } from "@material-ui/core";
 import { useHistory } from "react-router-dom";
 
-import isAuth from "../lib/isAuth";
+import isAuth, { userType } from "../lib/isAuth";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -36,13 +36,31 @@ const Navbar = (props) => {
           Job Portal
         </Typography>
         {isAuth() ? (
-          <>
-            <Button color="inherit">Dashboard</Button>
-            <Button color="inherit">Jobs</Button>
-            <Button color="inherit" onClick={() => handleClick("/logout")}>
-              Logout
-            </Button>
-          </>
+          userType() === "recruiter" ? (
+            <>
+              <Button color="inherit" onClick={() => handleClick("/home")}>
+                Home
+              </Button>
+              <Button color="inherit">Add Jobs</Button>
+              <Button color="inherit">Applications</Button>
+              <Button color="inherit">Applicants</Button>
+              <Button color="inherit">Profile</Button>
+              <Button color="inherit" onClick={() => handleClick("/logout")}>
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button color="inherit" onClick={() => handleClick("/home")}>
+                Home
+              </Button>
+              <Button color="inherit">Applications</Button>
+              <Button color="inherit">Profile</Button>
+              <Button color="inherit" onClick={() => handleClick("/logout")}>
+                Logout
+              </Button>
+            </>
+          )
         ) : (
           <>
             <Button color="inherit" onClick={() => handleClick("/login")}>

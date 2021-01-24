@@ -6,6 +6,7 @@ import Navbar from "./component/Navbar";
 import Login from "./component/Login";
 import Logout from "./component/Logout";
 import Signup from "./component/Signup";
+import Home from "./component/Home";
 import MessagePopup from "./lib/MessagePopup";
 
 const useStyles = makeStyles((theme) => ({
@@ -47,6 +48,9 @@ function App() {
               </Route>
               <Route exact path="/logout">
                 <Logout />
+              </Route>
+              <Route exact path="/home">
+                <Home />
               </Route>
             </Switch>
           </Grid>

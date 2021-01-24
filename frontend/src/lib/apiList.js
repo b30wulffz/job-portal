@@ -5,6 +5,7 @@ const apiList = {
   signup: `${server}/auth/signup`,
   uploadResume: `${server}/upload/resume`,
   uploadProfileImage: `${server}/upload/profile`,
+  jobs: `${server}/api/jobs`,
 };
 
 export default apiList;
