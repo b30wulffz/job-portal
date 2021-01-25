@@ -598,15 +598,44 @@ router.get("/jobs/:id/applications", jwtAuth, (req, res) => {
 router.get("/applications", jwtAuth, (req, res) => {
   const user = req.user;
 
-  const page = parseInt(req.query.page) ? parseInt(req.query.page) : 1;
-  const limit = parseInt(req.query.limit) ? parseInt(req.query.limit) : 10;
-  const skip = page - 1 >= 0 ? (page - 1) * limit : 0;
+  // const page = parseInt(req.query.page) ? parseInt(req.query.page) : 1;
+  // const limit = parseInt(req.query.limit) ? parseInt(req.query.limit) : 10;
+  // const skip = page - 1 >= 0 ? (page - 1) * limit : 0;
 
-  Application.find({
-    [user.type === "recruiter" ? "recruiterId" : "userId"]: user._id,
-  })
-    .skip(skip)
-    .limit(limit)
+  Application.aggregate([
+    {
+      $lookup: {
+        from: "jobapplicantinfos",
+        localField: "userId",
+        foreignField: "userId",
+        as: "jobApplicant",
+      },
+    },
+    { $unwind: "$jobApplicant" },
+    {
+      $lookup: {
+        from: "jobs",
+        localField: "jobId",
+        foreignField: "_id",
+        as: "job",
+      },
+    },
+    { $unwind: "$job" },
+    {
+      $lookup: {
+        from: "recruiterinfos",
+        localField: "recruiterId",
+        foreignField: "userId",
+        as: "recruiter",
+      },
+    },
+    { $unwind: "$recruiter" },
+    {
+      $match: {
+        [user.type === "recruiter" ? "recruiterId" : "userId"]: user._id,
+      },
+    },
+  ])
     .then((applications) => {
       res.json(applications);
     })

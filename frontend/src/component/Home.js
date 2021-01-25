@@ -607,54 +607,74 @@ const Home = (props) => {
         item
         direction="column"
         alignItems="center"
-        style={{ padding: "30px" }}
+        style={{ padding: "30px", minHeight: "93vh" }}
       >
-        <Grid item xs>
-          <Typography variant="h2">Search Jobs</Typography>
-        </Grid>
-        <Grid item xs>
-          <TextField
-            label="Search Jobs"
-            value={searchOptions.query}
-            onChange={(event) =>
-              setSearchOptions({
-                ...searchOptions,
-                query: event.target.value,
-              })
-            }
-            onKeyPress={(ev) => {
-              if (ev.key === "Enter") {
-                getData();
+        <Grid
+          item
+          container
+          direction="column"
+          justify="center"
+          alignItems="center"
+        >
+          <Grid item xs>
+            <Typography variant="h2">Jobs</Typography>
+          </Grid>
+          <Grid item xs>
+            <TextField
+              label="Search Jobs"
+              value={searchOptions.query}
+              onChange={(event) =>
+                setSearchOptions({
+                  ...searchOptions,
+                  query: event.target.value,
+                })
               }
-            }}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment>
-                  <IconButton onClick={() => getData()}>
-                    <SearchIcon />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
+              onKeyPress={(ev) => {
+                if (ev.key === "Enter") {
+                  getData();
+                }
+              }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment>
+                    <IconButton onClick={() => getData()}>
+                      <SearchIcon />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              style={{ width: "500px" }}
+              variant="outlined"
+            />
+          </Grid>
+          <Grid item>
+            <IconButton onClick={() => setFilterOpen(true)}>
+              <FilterListIcon />
+            </IconButton>
+          </Grid>
         </Grid>
-        <Grid item>
-          <IconButton onClick={() => setFilterOpen(true)}>
-            <FilterListIcon />
-          </IconButton>
-        </Grid>
-        <Grid container item direction="column" alignItems="center">
+
+        <Grid
+          container
+          item
+          xs
+          direction="column"
+          alignItems="stretch"
+          justify="center"
+        >
           {jobs.length > 0 ? (
             jobs.map((job) => {
               return <JobTile job={job} />;
             })
           ) : (
-            <Typography variant="h5">No jobs found</Typography>
+            <Typography variant="h5" style={{ textAlign: "center" }}>
+              No jobs found
+            </Typography>
           )}
         </Grid>
-        <Grid item>
+        {/* <Grid item>
           <Pagination count={10} color="primary" />
-        </Grid>
+        </Grid> */}
       </Grid>
       <FilterPopup
         open={filterOpen}

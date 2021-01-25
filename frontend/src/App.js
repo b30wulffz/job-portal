@@ -7,6 +7,8 @@ import Login from "./component/Login";
 import Logout from "./component/Logout";
 import Signup from "./component/Signup";
 import Home from "./component/Home";
+import Applications from "./component/Applications";
+import Profile from "./component/Profile";
 import MessagePopup from "./lib/MessagePopup";
 
 const useStyles = makeStyles((theme) => ({
@@ -51,6 +53,12 @@ function App() {
               </Route>
               <Route exact path="/home">
                 <Home />
+              </Route>
+              <Route exact path="/applications">
+                <Applications />
+              </Route>
+              <Route exact path="/profile">
+                <Profile />
               </Route>
             </Switch>
           </Grid>
