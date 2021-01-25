@@ -71,15 +71,24 @@ router.get("/jobs", jwtAuth, (req, res) => {
     findParams = {
       ...findParams,
       title: {
-        $regex: new RegExp(req.query.q),
+        $regex: new RegExp(req.query.q, "i"),
       },
     };
   }
 
   if (req.query.jobType) {
+    let jobTypes = [];
+    if (Array.isArray(req.query.jobType)) {
+      jobTypes = req.query.jobType;
+    } else {
+      jobTypes = [req.query.jobType];
+    }
+    console.log(jobTypes);
     findParams = {
       ...findParams,
-      jobType: req.query.jobType,
+      jobType: {
+        $in: jobTypes,
+      },
     };
   }
 
