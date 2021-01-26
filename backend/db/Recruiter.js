@@ -14,7 +14,7 @@ let schema = new mongoose.Schema(
       type: String,
       validate: {
         validator: function (v) {
-          return /\+\d{1,4}-\d{10}/.test(v);
+          return v !== "" ? /\+\d{1,3}\d{10}/.test(v) : true;
         },
         msg: "Phone number is invalid!",
       },

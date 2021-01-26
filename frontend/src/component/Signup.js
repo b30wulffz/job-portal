@@ -14,6 +14,8 @@ import { Redirect } from "react-router-dom";
 import ChipInput from "material-ui-chip-input";
 import DescriptionIcon from "@material-ui/icons/Description";
 import FaceIcon from "@material-ui/icons/Face";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/material.css";
 
 import PasswordInput from "../lib/PasswordInput";
 import EmailInput from "../lib/EmailInput";
@@ -127,7 +129,11 @@ const Login = (props) => {
     skills: [],
     resume: "",
     profile: "",
+    bio: "",
+    contactNumber: "",
   });
+
+  const [phone, setPhone] = useState("");
 
   const [education, setEducation] = useState([
     {
@@ -217,6 +223,77 @@ const Login = (props) => {
         .post(apiList.signup, updatedDetails)
         .then((response) => {
           localStorage.setItem("token", response.data.token);
+          localStorage.setItem("type", response.data.type);
+          setLoggedin(isAuth());
+          setPopup({
+            open: true,
+            severity: "success",
+            message: "Logged in successfully",
+          });
+          console.log(response);
+        })
+        .catch((err) => {
+          setPopup({
+            open: true,
+            severity: "error",
+            message: err.response.data.message,
+          });
+          console.log(err.response);
+        });
+    } else {
+      setInputErrorHandler(tmpErrorHandler);
+      setPopup({
+        open: true,
+        severity: "error",
+        message: "Incorrect Input",
+      });
+    }
+  };
+
+  const handleLoginRecruiter = () => {
+    const tmpErrorHandler = {};
+    Object.keys(inputErrorHandler).forEach((obj) => {
+      if (inputErrorHandler[obj].required && inputErrorHandler[obj].untouched) {
+        tmpErrorHandler[obj] = {
+          required: true,
+          untouched: false,
+          error: true,
+          message: `${obj[0].toUpperCase() + obj.substr(1)} is required`,
+        };
+      } else {
+        tmpErrorHandler[obj] = inputErrorHandler[obj];
+      }
+    });
+
+    let updatedDetails = {
+      ...signupDetails,
+    };
+    if (phone !== "") {
+      updatedDetails = {
+        ...signupDetails,
+        contactNumber: `+${phone}`,
+      };
+    } else {
+      updatedDetails = {
+        ...signupDetails,
+        contactNumber: "",
+      };
+    }
+
+    setSignupDetails(updatedDetails);
+
+    const verified = !Object.keys(tmpErrorHandler).some((obj) => {
+      return tmpErrorHandler[obj].error;
+    });
+
+    console.log(updatedDetails);
+
+    if (verified) {
+      axios
+        .post(apiList.signup, updatedDetails)
+        .then((response) => {
+          localStorage.setItem("token", response.data.token);
+          localStorage.setItem("type", response.data.type);
           setLoggedin(isAuth());
           setPopup({
             open: true,
@@ -367,14 +444,45 @@ const Login = (props) => {
             </Grid>
           </>
         ) : (
-          <></>
+          <>
+            <Grid item style={{ width: "100%" }}>
+              <TextField
+                label="Bio (upto 250 words)"
+                multiline
+                rows={8}
+                style={{ width: "100%" }}
+                variant="outlined"
+                value={signupDetails.bio}
+                onChange={(event) => {
+                  if (
+                    event.target.value.split(" ").filter(function (n) {
+                      return n != "";
+                    }).length <= 250
+                  ) {
+                    handleInput("bio", event.target.value);
+                  }
+                }}
+              />
+            </Grid>
+            <Grid item>
+              <PhoneInput
+                country={"in"}
+                value={phone}
+                onChange={(phone) => setPhone(phone)}
+              />
+            </Grid>
+          </>
         )}
 
         <Grid item>
           <Button
             variant="contained"
             color="primary"
-            onClick={() => handleLogin()}
+            onClick={() => {
+              signupDetails.type === "applicant"
+                ? handleLogin()
+                : handleLoginRecruiter();
+            }}
             className={classes.submitButton}
           >
             Signup

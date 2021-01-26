@@ -54,7 +54,9 @@ const Navbar = (props) => {
               >
                 Applicants
               </Button>
-              <Button color="inherit">Profile</Button>
+              <Button color="inherit" onClick={() => handleClick("/profile")}>
+                Profile
+              </Button>
               <Button color="inherit" onClick={() => handleClick("/logout")}>
                 Logout
               </Button>
