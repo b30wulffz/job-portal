@@ -697,6 +697,7 @@ router.put("/applications/:id", jwtAuth, (req, res) => {
               if (activeApplicationCount < job.maxPositions) {
                 // accepted
                 application.status = status;
+                application.dateOfJoining = req.body.dateOfJoining;
                 application
                   .save()
                   .then(() => {

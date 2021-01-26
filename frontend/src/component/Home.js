@@ -27,6 +27,7 @@ import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
 import { SetPopupContext } from "../App";
 
 import apiList from "../lib/apiList";
+import { userType } from "../lib/isAuth";
 
 const useStyles = makeStyles((theme) => ({
   body: {
@@ -124,7 +125,10 @@ const JobTile = (props) => {
             variant="contained"
             color="primary"
             className={classes.button}
-            onClick={() => setOpen(true)}
+            onClick={() => {
+              setOpen(true);
+            }}
+            disabled={() => userType() === "recruiter"}
           >
             Apply
           </Button>

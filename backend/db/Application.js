@@ -37,7 +37,7 @@ let schema = new mongoose.Schema(
       validate: [
         {
           validator: function (value) {
-            return this.dateOfPosting < value;
+            return this.dateOfApplication <= value;
           },
           msg: "dateOfJoining should be greater than dateOfApplication",
         },
