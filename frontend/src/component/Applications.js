@@ -57,6 +57,7 @@ const ApplicationTile = (props) => {
   const [rating, setRating] = useState(application.job.rating);
 
   const appliedOn = new Date(application.dateOfApplication);
+  const joinedOn = new Date(application.dateOfJoining);
 
   const fetchRating = () => {
     axios
@@ -150,6 +151,10 @@ const ApplicationTile = (props) => {
             ))}
           </Grid>
           <Grid item>Applied On: {appliedOn.toLocaleDateString()}</Grid>
+          {application.status === "accepted" ||
+          application.status === "finished" ? (
+            <Grid item>Joined On: {joinedOn.toLocaleDateString()}</Grid>
+          ) : null}
         </Grid>
         <Grid item container direction="column" xs={3}>
           <Grid item xs>

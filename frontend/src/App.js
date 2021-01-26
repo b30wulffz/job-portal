@@ -2,6 +2,7 @@ import { createContext, useState } from "react";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import { Grid, makeStyles } from "@material-ui/core";
 
+import Welcome, { ErrorPage } from "./component/Welcome";
 import Navbar from "./component/Navbar";
 import Login from "./component/Login";
 import Logout from "./component/Logout";
@@ -15,7 +16,7 @@ import JobApplications from "./component/recruiter/JobApplications";
 import AcceptedApplicants from "./component/recruiter/AcceptedApplicants";
 import RecruiterProfile from "./component/recruiter/Profile";
 import MessagePopup from "./lib/MessagePopup";
-import { userType } from "./lib/isAuth";
+import isAuth, { userType } from "./lib/isAuth";
 
 const useStyles = makeStyles((theme) => ({
   body: {
@@ -48,6 +49,9 @@ function App() {
           </Grid>
           <Grid item className={classes.body}>
             <Switch>
+              <Route exact path="/">
+                <Welcome />
+              </Route>
               <Route exact path="/login">
                 <Login />
               </Route>
@@ -79,8 +83,11 @@ function App() {
               <Route exact path="/job/applications/:jobId">
                 <JobApplications />
               </Route>
-              <Route exact path="/acceptedapplicants">
+              <Route exact path="/employees">
                 <AcceptedApplicants />
+              </Route>
+              <Route>
+                <ErrorPage />
               </Route>
             </Switch>
           </Grid>

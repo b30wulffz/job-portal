@@ -98,6 +98,8 @@ const JobTile = (props) => {
       });
   };
 
+  const deadline = new Date(job.deadline).toLocaleDateString();
+
   return (
     <Paper className={classes.jobTileOuter} elevation={3}>
       <Grid container>
@@ -114,6 +116,9 @@ const JobTile = (props) => {
             Duration :{" "}
             {job.duration !== 0 ? `${job.duration} month` : `Flexible`}
           </Grid>
+          <Grid item>Posted By : {job.recruiter.name}</Grid>
+          <Grid item>Application Deadline : {deadline}</Grid>
+
           <Grid item>
             {job.skillsets.map((skill) => (
               <Chip label={skill} style={{ marginRight: "2px" }} />
@@ -542,7 +547,7 @@ const Home = (props) => {
   }, []);
 
   const getData = () => {
-    let searchParams = [];
+    let searchParams = [`desc=dateOfPosting`];
     if (searchOptions.query !== "") {
       searchParams = [...searchParams, `q=${searchOptions.query}`];
     }
@@ -600,7 +605,13 @@ const Home = (props) => {
       })
       .then((response) => {
         console.log(response.data);
-        setJobs(response.data);
+        setJobs(
+          response.data.filter((obj) => {
+            const today = new Date();
+            const deadline = new Date(obj.deadline);
+            return deadline > today;
+          })
+        );
       })
       .catch((err) => {
         console.log(err.response.data);

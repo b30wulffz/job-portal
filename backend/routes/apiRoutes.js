@@ -168,11 +168,23 @@ router.get("/jobs", jwtAuth, (req, res) => {
   console.log(findParams);
   console.log(sortParams);
 
-  Job.find(findParams)
-    .collation({ locale: "en" })
-    .sort(sortParams)
-    // .skip(skip)
-    // .limit(limit)
+  // Job.find(findParams).collation({ locale: "en" }).sort(sortParams);
+  // .skip(skip)
+  // .limit(limit)
+
+  Job.aggregate([
+    {
+      $lookup: {
+        from: "recruiterinfos",
+        localField: "userId",
+        foreignField: "userId",
+        as: "recruiter",
+      },
+    },
+    { $unwind: "$recruiter" },
+    { $match: findParams },
+    { $sort: sortParams },
+  ])
     .then((posts) => {
       if (posts == null) {
         res.status(404).json({
@@ -634,6 +646,11 @@ router.get("/applications", jwtAuth, (req, res) => {
     {
       $match: {
         [user.type === "recruiter" ? "recruiterId" : "userId"]: user._id,
+      },
+    },
+    {
+      $sort: {
+        dateOfApplication: -1,
       },
     },
   ])

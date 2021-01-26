@@ -576,6 +576,16 @@ const ApplicationTile = (props) => {
           </Grid>
           <Grid item>Applied On: {appliedOn.toLocaleDateString()}</Grid>
           <Grid item>
+            Education:{" "}
+            {application.jobApplicant.education
+              .map((edu) => {
+                return `${edu.institutionName} (${edu.startYear}-${
+                  edu.endYear ? edu.endYear : "Ongoing"
+                })`;
+              })
+              .join(", ")}
+          </Grid>
+          <Grid item>
             SOP: {application.sop !== "" ? application.sop : "Not Submitted"}
           </Grid>
           <Grid item>
@@ -598,22 +608,6 @@ const ApplicationTile = (props) => {
           <Grid item container xs>
             {buttonSet[application.status]}
           </Grid>
-          {/* {application.status === "accepted" ||
-          application.status === "finished" ? (
-            <Grid item>
-              <Button
-                variant="contained"
-                color="primary"
-                className={classes.statusBlock}
-                onClick={() => {
-                  //   fetchRating();
-                  setOpen(true);
-                }}
-              >
-                Rate Job
-              </Button>
-            </Grid>
-          ) : null} */}
         </Grid>
       </Grid>
       <Modal open={open} onClose={handleClose} className={classes.popupDialog}>

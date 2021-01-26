@@ -165,7 +165,10 @@ const JobTile = (props) => {
           </Grid>
           <Grid item>Date Of Posting: {postedOn.toLocaleDateString()}</Grid>
           <Grid item>Number of Applicants: {job.maxApplicants}</Grid>
-          <Grid item>Maximum Number of Postions: {job.maxPositions}</Grid>
+          <Grid item>
+            Remaining Number of Positions:{" "}
+            {job.maxPositions - job.acceptedCandidates}
+          </Grid>
           <Grid item>
             {job.skillsets.map((skill) => (
               <Chip label={skill} style={{ marginRight: "2px" }} />
