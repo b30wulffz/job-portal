@@ -63,7 +63,7 @@ router.get("/jobs", jwtAuth, (req, res) => {
   if (user.type === "recruiter" && req.query.myjobs) {
     findParams = {
       ...findParams,
-      userId: user.id,
+      userId: user._id,
     };
   }
 
@@ -172,7 +172,7 @@ router.get("/jobs", jwtAuth, (req, res) => {
   // .skip(skip)
   // .limit(limit)
 
-  Job.aggregate([
+  let arr = [
     {
       $lookup: {
         from: "recruiterinfos",
@@ -183,8 +183,29 @@ router.get("/jobs", jwtAuth, (req, res) => {
     },
     { $unwind: "$recruiter" },
     { $match: findParams },
-    { $sort: sortParams },
-  ])
+  ];
+
+  if (Object.keys(sortParams).length > 0) {
+    arr = [
+      {
+        $lookup: {
+          from: "recruiterinfos",
+          localField: "userId",
+          foreignField: "userId",
+          as: "recruiter",
+        },
+      },
+      { $unwind: "$recruiter" },
+      { $match: findParams },
+      {
+        $sort: sortParams,
+      },
+    ];
+  }
+
+  console.log(arr);
+
+  Job.aggregate(arr)
     .then((posts) => {
       if (posts == null) {
         res.status(404).json({

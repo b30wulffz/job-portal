@@ -555,6 +555,8 @@ const ApplicationTile = (props) => {
               readOnly
             />
           </Grid>
+          <Grid item>Job Title: {application.job.title}</Grid>
+          <Grid item>Role: {application.job.jobType}</Grid>
           <Grid item>Applied On: {appliedOn.toLocaleDateString()}</Grid>
           <Grid item>
             SOP: {application.sop !== "" ? application.sop : "Not Submitted"}

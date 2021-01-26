@@ -7,7 +7,7 @@ const fs = require("fs");
 
 // MongoDB
 mongoose
-  .connect("mongodb://localhost:27017/assign1c", {
+  .connect("mongodb://localhost:27017/jobPortal", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,

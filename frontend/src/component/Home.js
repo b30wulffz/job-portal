@@ -547,7 +547,7 @@ const Home = (props) => {
   }, []);
 
   const getData = () => {
-    let searchParams = [`desc=dateOfPosting`];
+    let searchParams = [];
     if (searchOptions.query !== "") {
       searchParams = [...searchParams, `q=${searchOptions.query}`];
     }
