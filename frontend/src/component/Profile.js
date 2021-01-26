@@ -6,8 +6,13 @@ import {
   Modal,
   Paper,
   makeStyles,
+  TextField,
 } from "@material-ui/core";
 import axios from "axios";
+import ChipInput from "material-ui-chip-input";
+import FileUploadInput from "../lib/FileUploadInput";
+import DescriptionIcon from "@material-ui/icons/Description";
+import FaceIcon from "@material-ui/icons/Face";
 
 import { SetPopupContext } from "../App";
 
@@ -22,14 +27,110 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    // padding: "30px",
   },
 }));
+
+const MultifieldInput = (props) => {
+  const classes = useStyles();
+  const { education, setEducation } = props;
+
+  return (
+    <>
+      {education.map((obj, key) => (
+        <Grid item container className={classes.inputBox} key={key}>
+          <Grid item xs={6}>
+            <TextField
+              label={`Institution Name #${key + 1}`}
+              value={education[key].institutionName}
+              onChange={(event) => {
+                const newEdu = [...education];
+                newEdu[key].institutionName = event.target.value;
+                setEducation(newEdu);
+              }}
+              variant="outlined"
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={3}>
+            <TextField
+              label="Start Year"
+              value={obj.startYear}
+              variant="outlined"
+              type="number"
+              onChange={(event) => {
+                const newEdu = [...education];
+                newEdu[key].startYear = event.target.value;
+                setEducation(newEdu);
+              }}
+            />
+          </Grid>
+          <Grid item xs={3}>
+            <TextField
+              label="End Year"
+              value={obj.endYear}
+              variant="outlined"
+              type="number"
+              onChange={(event) => {
+                const newEdu = [...education];
+                newEdu[key].endYear = event.target.value;
+                setEducation(newEdu);
+              }}
+            />
+          </Grid>
+        </Grid>
+      ))}
+      <Grid item style={{ alignSelf: "center" }}>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() =>
+            setEducation([
+              ...education,
+              {
+                institutionName: "",
+                startYear: "",
+                endYear: "",
+              },
+            ])
+          }
+          className={classes.inputBox}
+        >
+          Add another institution details
+        </Button>
+      </Grid>
+    </>
+  );
+};
 
 const Profile = (props) => {
   const classes = useStyles();
   const setPopup = useContext(SetPopupContext);
   const [userData, setUserData] = useState();
   const [open, setOpen] = useState(false);
+
+  const [profileDetails, setProfileDetails] = useState({
+    name: "",
+    education: [],
+    skills: [],
+    resume: "",
+    profile: "",
+  });
+
+  const [education, setEducation] = useState([
+    {
+      institutionName: "",
+      startYear: "",
+      endYear: "",
+    },
+  ]);
+
+  const handleInput = (key, value) => {
+    setProfileDetails({
+      ...profileDetails,
+      [key]: value,
+    });
+  };
 
   useEffect(() => {
     getData();
@@ -44,7 +145,16 @@ const Profile = (props) => {
       })
       .then((response) => {
         console.log(response.data);
-        setUserData(response.data);
+        setProfileDetails(response.data);
+        if (response.data.education.length > 0) {
+          setEducation(
+            response.data.education.map((edu) => ({
+              institutionName: edu.institutionName ? edu.institutionName : "",
+              startYear: edu.startYear ? edu.startYear : "",
+              endYear: edu.endYear ? edu.endYear : "",
+            }))
+          );
+        }
       })
       .catch((err) => {
         console.log(err.response.data);
@@ -64,6 +174,46 @@ const Profile = (props) => {
     setOpen(true);
   };
 
+  const handleUpdate = () => {
+    console.log(education);
+
+    let updatedDetails = {
+      ...profileDetails,
+      education: education
+        .filter((obj) => obj.institutionName.trim() !== "")
+        .map((obj) => {
+          if (obj["endYear"] === "") {
+            delete obj["endYear"];
+          }
+          return obj;
+        }),
+    };
+
+    axios
+      .put(apiList.user, updatedDetails, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((response) => {
+        setPopup({
+          open: true,
+          severity: "success",
+          message: response.data.message,
+        });
+        getData();
+      })
+      .catch((err) => {
+        setPopup({
+          open: true,
+          severity: "error",
+          message: err.response.data.message,
+        });
+        console.log(err.response);
+      });
+    setOpen(false);
+  };
+
   return (
     <>
       <Grid
@@ -76,143 +226,91 @@ const Profile = (props) => {
         <Grid item>
           <Typography variant="h2">Profile</Typography>
         </Grid>
-        <Grid
-          item
-          container
-          direction="column"
-          alignItems="center"
-          xs
-          spacing={2}
-        >
-          <Grid item container justify="center">
-            <Grid item xs={2}>
-              Name:{" "}
+        <Grid item xs>
+          <Paper
+            style={{
+              padding: "20px",
+              outline: "none",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Grid container direction="column" alignItems="stretch" spacing={3}>
+              <Grid item>
+                <TextField
+                  label="Name"
+                  value={profileDetails.name}
+                  onChange={(event) => handleInput("name", event.target.value)}
+                  className={classes.inputBox}
+                  variant="outlined"
+                  fullWidth
+                />
+              </Grid>
+              <MultifieldInput
+                education={education}
+                setEducation={setEducation}
+              />
+              <Grid item>
+                <ChipInput
+                  className={classes.inputBox}
+                  label="Skills"
+                  variant="outlined"
+                  helperText="Press enter to add skills"
+                  value={profileDetails.skills}
+                  onAdd={(chip) =>
+                    setProfileDetails({
+                      ...profileDetails,
+                      skills: [...profileDetails.skills, chip],
+                    })
+                  }
+                  onDelete={(chip, index) => {
+                    let skills = profileDetails.skills;
+                    skills.splice(index, 1);
+                    setProfileDetails({
+                      ...profileDetails,
+                      skills: skills,
+                    });
+                  }}
+                  fullWidth
+                />
+              </Grid>
+              <Grid item>
+                <FileUploadInput
+                  className={classes.inputBox}
+                  label="Resume (.pdf)"
+                  icon={<DescriptionIcon />}
+                  uploadTo={apiList.uploadResume}
+                  handleInput={handleInput}
+                  identifier={"resume"}
+                />
+              </Grid>
+              <Grid item>
+                <FileUploadInput
+                  className={classes.inputBox}
+                  label="Profile Photo (.jpg/.png)"
+                  icon={<FaceIcon />}
+                  uploadTo={apiList.uploadProfileImage}
+                  handleInput={handleInput}
+                  identifier={"profile"}
+                />
+              </Grid>
             </Grid>
-            <Grid item>Something</Grid>
-          </Grid>
-          <Grid item>
             <Button
               variant="contained"
               color="primary"
-              onClick={() => {
-                editDetails();
-              }}
+              style={{ padding: "10px 50px", marginTop: "30px" }}
+              onClick={() => handleUpdate()}
             >
-              Edit Details
+              Update Details
             </Button>
-          </Grid>
+          </Paper>
         </Grid>
       </Grid>
-      <Modal open={open} onClose={handleClose} className={classes.popupDialog}>
-        <Paper
-          style={{
-            padding: "20px",
-            outline: "none",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            minWidth: "30%",
-            alignItems: "center",
-          }}
-        >
-          {/* <Grid container>
-            <Grid item>
-              <TextField
-                label="Name"
-                value={signupDetails.name}
-                onChange={(event) => handleInput("name", event.target.value)}
-                className={classes.inputBox}
-                error={inputErrorHandler.name.error}
-                helperText={inputErrorHandler.name.message}
-                onBlur={(event) => {
-                  if (event.target.value === "") {
-                    handleInputError("name", true, "Name is required");
-                  } else {
-                    handleInputError("name", false, "");
-                  }
-                }}
-                variant="outlined"
-              />
-            </Grid>
-            <Grid item>
-              <PasswordInput
-                label="Password"
-                value={signupDetails.password}
-                onChange={(event) =>
-                  handleInput("password", event.target.value)
-                }
-                className={classes.inputBox}
-                error={inputErrorHandler.password.error}
-                helperText={inputErrorHandler.password.message}
-                onBlur={(event) => {
-                  if (event.target.value === "") {
-                    handleInputError("password", true, "Password is required");
-                  } else {
-                    handleInputError("password", false, "");
-                  }
-                }}
-              />
-            </Grid>
-            <MultifieldInput
-              education={education}
-              setEducation={setEducation}
-            />
-            <Grid item>
-              <ChipInput
-                className={classes.inputBox}
-                label="Skills"
-                variant="outlined"
-                helperText="Press enter to add skills"
-                onChange={(chips) =>
-                  setSignupDetails({ ...signupDetails, skills: chips })
-                }
-              />
-            </Grid>
-            <Grid item>
-              <FileUploadInput
-                className={classes.inputBox}
-                label="Resume (.pdf)"
-                icon={<DescriptionIcon />}
-                // value={files.resume}
-                // onChange={(event) =>
-                //   setFiles({
-                //     ...files,
-                //     resume: event.target.files[0],
-                //   })
-                // }
-                uploadTo={apiList.uploadResume}
-                handleInput={handleInput}
-                identifier={"resume"}
-              />
-            </Grid>
-            <Grid item>
-              <FileUploadInput
-                className={classes.inputBox}
-                label="Profile Photo (.jpg/.png)"
-                icon={<FaceIcon />}
-                // value={files.profileImage}
-                // onChange={(event) =>
-                //   setFiles({
-                //     ...files,
-                //     profileImage: event.target.files[0],
-                //   })
-                // }
-                uploadTo={apiList.uploadProfileImage}
-                handleInput={handleInput}
-                identifier={"profile"}
-              />
-            </Grid>
-          </Grid> */}
-          <Button
-            variant="contained"
-            color="primary"
-            style={{ padding: "10px 50px" }}
-            // onClick={() => changeRating()}
-          >
-            Submit
-          </Button>
-        </Paper>
-      </Modal>
+      {/* <Modal open={open} onClose={handleClose} className={classes.popupDialog}> */}
+
+      {/* </Modal> */}
     </>
   );
 };
