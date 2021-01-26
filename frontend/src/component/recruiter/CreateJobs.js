@@ -200,7 +200,7 @@ const CreateJobs = (props) => {
                     onChange={(event) => {
                       handleInput("salary", event.target.value);
                     }}
-                    InputProps={{ inputProps: { min: 1 } }}
+                    InputProps={{ inputProps: { min: 0 } }}
                     fullWidth
                   />
                 </Grid>
@@ -221,7 +221,7 @@ const CreateJobs = (props) => {
                 </Grid>
                 <Grid item>
                   <TextField
-                    label="Max Applicants"
+                    label="Maximum Number Of Applicants"
                     type="number"
                     variant="outlined"
                     value={jobDetails.maxApplicants}

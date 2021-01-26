@@ -26,6 +26,7 @@ const Navbar = (props) => {
   let history = useHistory();
 
   const handleClick = (location) => {
+    console.log(location);
     history.push(location);
   };
 
@@ -47,8 +48,12 @@ const Navbar = (props) => {
               <Button color="inherit" onClick={() => handleClick("/myjobs")}>
                 My Jobs
               </Button>
-              {/* <Button color="inherit">Applications</Button> */}
-              <Button color="inherit">Applicants</Button>
+              <Button
+                color="inherit"
+                onClick={() => handleClick("/acceptedapplicants")}
+              >
+                Applicants
+              </Button>
               <Button color="inherit">Profile</Button>
               <Button color="inherit" onClick={() => handleClick("/logout")}>
                 Logout

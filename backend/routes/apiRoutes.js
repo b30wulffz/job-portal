@@ -982,7 +982,7 @@ router.put("/rating", jwtAuth, (req, res) => {
                     Rating.aggregate([
                       {
                         $match: {
-                          receiverId: data.applicantId,
+                          receiverId: mongoose.Types.ObjectId(data.applicantId),
                           category: "applicant",
                         },
                       },
@@ -1056,7 +1056,7 @@ router.put("/rating", jwtAuth, (req, res) => {
               Rating.aggregate([
                 {
                   $match: {
-                    receiverId: data.applicantId,
+                    receiverId: mongoose.Types.ObjectId(data.applicantId),
                     category: "applicant",
                   },
                 },
@@ -1122,7 +1122,11 @@ router.put("/rating", jwtAuth, (req, res) => {
       category: "job",
     })
       .then((rating) => {
+        console.log(user._id);
+        console.log(data.jobId);
+        console.log(rating);
         if (rating === null) {
+          console.log(rating);
           Application.countDocuments({
             userId: user._id,
             jobId: data.jobId,
@@ -1148,7 +1152,7 @@ router.put("/rating", jwtAuth, (req, res) => {
                     Rating.aggregate([
                       {
                         $match: {
-                          receiverId: data.jobId,
+                          receiverId: mongoose.Types.ObjectId(data.jobId),
                           category: "job",
                         },
                       },
@@ -1221,7 +1225,7 @@ router.put("/rating", jwtAuth, (req, res) => {
               Rating.aggregate([
                 {
                   $match: {
-                    receiverId: data.jobId,
+                    receiverId: mongoose.Types.ObjectId(data.jobId),
                     category: "job",
                   },
                 },
@@ -1240,6 +1244,8 @@ router.put("/rating", jwtAuth, (req, res) => {
                     return;
                   }
                   const avg = result[0].average;
+                  console.log(avg);
+
                   Job.findOneAndUpdate(
                     {
                       _id: data.jobId,

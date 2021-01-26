@@ -54,19 +54,20 @@ const ApplicationTile = (props) => {
   const { application } = props;
   const setPopup = useContext(SetPopupContext);
   const [open, setOpen] = useState(false);
-  const [rating, setRating] = useState(-1);
+  const [rating, setRating] = useState(application.job.rating);
 
   const appliedOn = new Date(application.dateOfApplication);
 
   const fetchRating = () => {
     axios
-      .get(apiList.rating, {
+      .get(`${apiList.rating}?id=${application.job._id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       })
       .then((response) => {
         setRating(response.data.rating);
+        console.log(response.data);
       })
       .catch((err) => {
         // console.log(err.response);
@@ -83,7 +84,7 @@ const ApplicationTile = (props) => {
     axios
       .put(
         apiList.rating,
-        { rating: rating },
+        { rating: rating, jobId: application.job._id },
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -97,17 +98,20 @@ const ApplicationTile = (props) => {
           severity: "success",
           message: "Rating updated successfully",
         });
+        fetchRating();
+        setOpen(false);
       })
       .catch((err) => {
         // console.log(err.response);
-        console.log(err.response.data);
+        console.log(err);
         setPopup({
           open: true,
           severity: "error",
           message: err.response.data.message,
         });
+        fetchRating();
+        setOpen(false);
       });
-    setOpen(false);
   };
 
   const handleClose = () => {

@@ -128,7 +128,7 @@ const JobTile = (props) => {
             onClick={() => {
               setOpen(true);
             }}
-            disabled={() => userType() === "recruiter"}
+            disabled={userType() === "recruiter"}
           >
             Apply
           </Button>
