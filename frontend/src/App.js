@@ -9,6 +9,8 @@ import Signup from "./component/Signup";
 import Home from "./component/Home";
 import Applications from "./component/Applications";
 import Profile from "./component/Profile";
+import CreateJobs from "./component/recruiter/CreateJobs";
+import MyJobs from "./component/recruiter/MyJobs";
 import MessagePopup from "./lib/MessagePopup";
 
 const useStyles = makeStyles((theme) => ({
@@ -59,6 +61,12 @@ function App() {
               </Route>
               <Route exact path="/profile">
                 <Profile />
+              </Route>
+              <Route exact path="/addjob">
+                <CreateJobs />
+              </Route>
+              <Route exact path="/myjobs">
+                <MyJobs />
               </Route>
             </Switch>
           </Grid>

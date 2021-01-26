@@ -24,9 +24,9 @@ import FilterListIcon from "@material-ui/icons/FilterList";
 import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
 import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
 
-import { SetPopupContext } from "../App";
+import { SetPopupContext } from "../../App";
 
-import apiList from "../lib/apiList";
+import apiList from "../../lib/apiList";
 
 const useStyles = makeStyles((theme) => ({
   body: {
@@ -48,42 +48,42 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "center",
   },
+  statusBlock: {
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    textTransform: "uppercase",
+  },
 }));
 
 const JobTile = (props) => {
   const classes = useStyles();
-  const { job } = props;
+  const { job, getData } = props;
   const setPopup = useContext(SetPopupContext);
 
   const [open, setOpen] = useState(false);
-  const [sop, setSop] = useState("");
 
   const handleClose = () => {
     setOpen(false);
-    setSop("");
   };
 
-  const handleApply = () => {
+  const handleDelete = () => {
     console.log(job._id);
-    console.log(sop);
     axios
-      .post(
-        `${apiList.jobs}/${job._id}/applications`,
-        {
-          sop: sop,
+      .delete(`${apiList.jobs}/${job._id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      )
+      })
       .then((response) => {
         setPopup({
           open: true,
           severity: "success",
           message: response.data.message,
         });
+        getData();
         handleClose();
       })
       .catch((err) => {
@@ -119,15 +119,31 @@ const JobTile = (props) => {
             ))}
           </Grid>
         </Grid>
-        <Grid item xs={3}>
-          <Button
-            variant="contained"
-            color="primary"
-            className={classes.button}
-            onClick={() => setOpen(true)}
-          >
-            Apply
-          </Button>
+        <Grid item container direction="column" xs={3}>
+          <Grid item xs>
+            <Button
+              variant="contained"
+              color="primary"
+              className={classes.statusBlock}
+              onClick={() => {
+                // setOpen(true);
+              }}
+            >
+              View Applications
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
+              variant="contained"
+              color="secondary"
+              className={classes.statusBlock}
+              onClick={() => {
+                setOpen(true);
+              }}
+            >
+              Delete Job
+            </Button>
+          </Grid>
         </Grid>
       </Grid>
       <Modal open={open} onClose={handleClose} className={classes.popupDialog}>
@@ -138,35 +154,35 @@ const JobTile = (props) => {
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
-            minWidth: "50%",
+            minWidth: "30%",
             alignItems: "center",
           }}
         >
-          <TextField
-            label="Write SOP (upto 250 words)"
-            multiline
-            rows={8}
-            style={{ width: "100%", marginBottom: "30px" }}
-            variant="outlined"
-            value={sop}
-            onChange={(event) => {
-              if (
-                event.target.value.split(" ").filter(function (n) {
-                  return n != "";
-                }).length <= 250
-              ) {
-                setSop(event.target.value);
-              }
-            }}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            style={{ padding: "10px 50px" }}
-            onClick={() => handleApply()}
-          >
-            Submit
-          </Button>
+          <Typography variant="h4" style={{ marginBottom: "10px" }}>
+            Are you sure?
+          </Typography>
+          <Grid container justify="center" spacing={5}>
+            <Grid item>
+              <Button
+                variant="contained"
+                color="secondary"
+                style={{ padding: "10px 50px" }}
+                onClick={() => handleDelete()}
+              >
+                Delete
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                variant="contained"
+                color="primary"
+                style={{ padding: "10px 50px" }}
+                onClick={() => handleClose()}
+              >
+                Cancel
+              </Button>
+            </Grid>
+          </Grid>
         </Paper>
       </Modal>
     </Paper>
@@ -504,7 +520,7 @@ const FilterPopup = (props) => {
   );
 };
 
-const Home = (props) => {
+const MyJobs = (props) => {
   const [jobs, setJobs] = useState([]);
   const [filterOpen, setFilterOpen] = useState(false);
   const [searchOptions, setSearchOptions] = useState({
@@ -538,7 +554,7 @@ const Home = (props) => {
   }, []);
 
   const getData = () => {
-    let searchParams = [];
+    let searchParams = [`myjobs=1`];
     if (searchOptions.query !== "") {
       searchParams = [...searchParams, `q=${searchOptions.query}`];
     }
@@ -625,7 +641,7 @@ const Home = (props) => {
           alignItems="center"
         >
           <Grid item xs>
-            <Typography variant="h2">Jobs</Typography>
+            <Typography variant="h2">My Jobs</Typography>
           </Grid>
           <Grid item xs>
             <TextField
@@ -672,7 +688,7 @@ const Home = (props) => {
         >
           {jobs.length > 0 ? (
             jobs.map((job) => {
-              return <JobTile job={job} />;
+              return <JobTile job={job} getData={getData} />;
             })
           ) : (
             <Typography variant="h5" style={{ textAlign: "center" }}>
@@ -680,9 +696,6 @@ const Home = (props) => {
             </Typography>
           )}
         </Grid>
-        {/* <Grid item>
-          <Pagination count={10} color="primary" />
-        </Grid> */}
       </Grid>
       <FilterPopup
         open={filterOpen}
@@ -698,4 +711,4 @@ const Home = (props) => {
   );
 };
 
-export default Home;
+export default MyJobs;
