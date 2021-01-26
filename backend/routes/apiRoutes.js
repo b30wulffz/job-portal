@@ -55,9 +55,9 @@ router.get("/jobs", jwtAuth, (req, res) => {
   let findParams = {};
   let sortParams = {};
 
-  const page = parseInt(req.query.page) ? parseInt(req.query.page) : 1;
-  const limit = parseInt(req.query.limit) ? parseInt(req.query.limit) : 10;
-  const skip = page - 1 >= 0 ? (page - 1) * limit : 0;
+  // const page = parseInt(req.query.page) ? parseInt(req.query.page) : 1;
+  // const limit = parseInt(req.query.limit) ? parseInt(req.query.limit) : 10;
+  // const skip = page - 1 >= 0 ? (page - 1) * limit : 0;
 
   // to list down jobs posted by a particular recruiter
   if (user.type === "recruiter" && req.query.myjobs) {
@@ -171,8 +171,8 @@ router.get("/jobs", jwtAuth, (req, res) => {
   Job.find(findParams)
     .collation({ locale: "en" })
     .sort(sortParams)
-    .skip(skip)
-    .limit(limit)
+    // .skip(skip)
+    // .limit(limit)
     .then((posts) => {
       if (posts == null) {
         res.status(404).json({
@@ -564,9 +564,9 @@ router.get("/jobs/:id/applications", jwtAuth, (req, res) => {
   }
   const jobId = req.params.id;
 
-  const page = parseInt(req.query.page) ? parseInt(req.query.page) : 1;
-  const limit = parseInt(req.query.limit) ? parseInt(req.query.limit) : 10;
-  const skip = page - 1 >= 0 ? (page - 1) * limit : 0;
+  // const page = parseInt(req.query.page) ? parseInt(req.query.page) : 1;
+  // const limit = parseInt(req.query.limit) ? parseInt(req.query.limit) : 10;
+  // const skip = page - 1 >= 0 ? (page - 1) * limit : 0;
 
   let findParams = {
     jobId: jobId,
@@ -585,8 +585,8 @@ router.get("/jobs/:id/applications", jwtAuth, (req, res) => {
   Application.find(findParams)
     .collation({ locale: "en" })
     .sort(sortParams)
-    .skip(skip)
-    .limit(limit)
+    // .skip(skip)
+    // .limit(limit)
     .then((applications) => {
       res.json(applications);
     })
