@@ -8,6 +8,7 @@ const Recruiter = require("../db/Recruiter");
 const Job = require("../db/Job");
 const Application = require("../db/Application");
 const Rating = require("../db/Rating");
+const Referal = require("../db/Referal");
 
 const router = express.Router();
 
@@ -1376,5 +1377,29 @@ router.get("/rating", jwtAuth, (req, res) => {
 //     }
 //   })(req, res, next);
 // });
+
+// To add new referal
+router.post('/referal', jwtAuth, (req, res) => {
+	const user = req.user
+	const data = req.body
+
+	const referal = new Referal({
+		refererId: user._id,
+		jobId: data.jobId,
+		referalCode: data.referalCode,
+	})
+
+	return referal
+		.save()
+		.then(() => {
+			return res
+				.status(201)
+				.json({ message: 'Referal code added successfully to the database' })
+		})
+		.catch((err) => {
+			console.error(err)
+			return res.status(500).json(err)
+		})
+})
 
 module.exports = router;
