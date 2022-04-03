@@ -28,6 +28,7 @@ import { SetPopupContext } from "../App";
 
 import apiList from "../lib/apiList";
 import { userType } from "../lib/isAuth";
+import { nanoid } from 'nanoid'
 
 const useStyles = makeStyles((theme) => ({
   body: {
@@ -36,6 +37,9 @@ const useStyles = makeStyles((theme) => ({
   button: {
     width: "100%",
     height: "100%",
+  },
+  actionButton: {
+    height: '100%',
   },
   jobTileOuter: {
     padding: "30px",
@@ -57,12 +61,17 @@ const JobTile = (props) => {
   const setPopup = useContext(SetPopupContext);
 
   const [open, setOpen] = useState(false);
+  const [referalOpen, setReferalOpen] = useState(false);
   const [sop, setSop] = useState("");
 
   const handleClose = () => {
     setOpen(false);
     setSop("");
   };
+
+  const handleReferalClose = () => {
+    setReferalOpen(false)
+  }
 
   const handleApply = () => {
     console.log(job._id);
@@ -126,17 +135,34 @@ const JobTile = (props) => {
           </Grid>
         </Grid>
         <Grid item xs={3}>
-          <Button
-            variant="contained"
-            color="primary"
-            className={classes.button}
-            onClick={() => {
-              setOpen(true);
-            }}
-            disabled={userType() === "recruiter"}
-          >
-            Apply
-          </Button>
+          <Grid container className={classes.actionButton} spacing={2}>
+            <Grid item xs={12}>
+              <Button
+                variant="contained"
+                color="primary"
+                className={classes.button}
+                onClick={() => {
+                  setOpen(true);
+                }}
+                disabled={userType() === "recruiter"}
+              >
+                Apply
+              </Button>
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                variant='contained'
+                color='secondary'
+                className={classes.button}
+                onClick={() => {
+                  setReferalOpen(true)
+                }}
+                disabled={userType() === 'recruiter'}
+              >
+                Refer
+              </Button>
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
       <Modal open={open} onClose={handleClose} className={classes.popupDialog}>
@@ -178,6 +204,7 @@ const JobTile = (props) => {
           </Button>
         </Paper>
       </Modal>
+      <ReferalCodePopup open={referalOpen} handleClose={handleReferalClose} job={job} />
     </Paper>
   );
 };
@@ -712,5 +739,76 @@ const Home = (props) => {
     </>
   );
 };
+
+const ReferalCodePopup = (props) => {
+	const classes = useStyles()
+	const { open, handleClose, job } = props
+
+	const setPopup = useContext(SetPopupContext)
+
+	const referalCode = nanoid(16)
+
+	const handleReferalCode = () => {
+		return axios
+			.post(
+				`${apiList.referal}`,
+				{ jobId: job._id, referalCode },
+				{
+					headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+				}
+			)
+			.then((response) => {
+				setPopup({
+					open: true,
+					severity: 'success',
+					message: response.data.message,
+				})
+				handleClose()
+			})
+			.catch((err) => {
+				console.log(err.response)
+				setPopup({
+					open: true,
+					severity: 'error',
+					message: err.response.data.message,
+				})
+				handleClose()
+			})
+	}
+
+	return (
+		<Modal open={open} onClose={handleClose} className={classes.popupDialog}>
+			<Paper
+				style={{
+					padding: '20px',
+					outline: 'none',
+					display: 'flex',
+					flexDirection: 'column',
+					justifyContent: 'center',
+					minWidth: '50%',
+					alignItems: 'center',
+				}}
+			>
+				<TextField
+					variant="outlined"
+          size="small"
+					value={referalCode}
+					label='Referal Code'
+          InputProps={{
+						readOnly: true,
+					}}
+				/>
+				<Button
+					variant='contained'
+					color='primary'
+					style={{ padding: '10px 50px', marginTop: "10px" }}
+					onClick={handleReferalCode}
+				>
+					Save
+				</Button>
+			</Paper>
+		</Modal>
+	)
+}
 
 export default Home;

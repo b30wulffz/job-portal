@@ -56,6 +56,10 @@ let schema = new mongoose.Schema(
     profile: {
       type: String,
     },
+    etheriumAddress: {
+      type: String,
+      required: true,
+    }
   },
   { collation: { locale: "en" } }
 );

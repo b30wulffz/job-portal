@@ -11,6 +11,7 @@
     "@testing-library/user-event": "^12.6.2",
     "axios": "^0.21.1",
     "material-ui-chip-input": "^1.1.0",
+    "nanoid": "^3.3.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-phone-input-2": "^2.13.9",
