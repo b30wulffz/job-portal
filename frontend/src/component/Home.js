@@ -37,6 +37,9 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     height: "100%",
   },
+  actionButton: {
+    height: '100%',
+  },
   jobTileOuter: {
     padding: "30px",
     margin: "20px 0",
@@ -57,12 +60,17 @@ const JobTile = (props) => {
   const setPopup = useContext(SetPopupContext);
 
   const [open, setOpen] = useState(false);
+  const [referalOpen, setReferalOpen] = useState(false);
   const [sop, setSop] = useState("");
 
   const handleClose = () => {
     setOpen(false);
     setSop("");
   };
+
+  const handleReferalClose = () => {
+    setReferalOpen(false)
+  }
 
   const handleApply = () => {
     console.log(job._id);
@@ -126,17 +134,34 @@ const JobTile = (props) => {
           </Grid>
         </Grid>
         <Grid item xs={3}>
-          <Button
-            variant="contained"
-            color="primary"
-            className={classes.button}
-            onClick={() => {
-              setOpen(true);
-            }}
-            disabled={userType() === "recruiter"}
-          >
-            Apply
-          </Button>
+          <Grid container className={classes.actionButton} spacing={2}>
+            <Grid item xs={12}>
+              <Button
+                variant="contained"
+                color="primary"
+                className={classes.button}
+                onClick={() => {
+                  setOpen(true);
+                }}
+                disabled={userType() === "recruiter"}
+              >
+                Apply
+              </Button>
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                variant='contained'
+                color='secondary'
+                className={classes.button}
+                onClick={() => {
+                  setReferalOpen(true)
+                }}
+                disabled={userType() !== 'recruiter'}
+              >
+                Refer
+              </Button>
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
       <Modal open={open} onClose={handleClose} className={classes.popupDialog}>
@@ -178,6 +203,7 @@ const JobTile = (props) => {
           </Button>
         </Paper>
       </Modal>
+      <ReferalCodePopup open={referalOpen} handleClose={handleReferalClose} />
     </Paper>
   );
 };
@@ -712,5 +738,32 @@ const Home = (props) => {
     </>
   );
 };
+
+const ReferalCodePopup = (props) => {
+  const classes = useStyles()
+  const { open, handleClose } = props
+  return (
+    <Modal open={open} onClose={handleClose} className={classes.popupDialog}>
+      <Paper 
+        style={{
+          padding: "50px",
+          outline: "none",
+          minWidth: "50%",
+        }}
+      >
+        <Grid container direction="column" alignItems="center" spacing={3}>
+          <Grid container item alignItems="center">
+            <Grid item xs={12}>
+              Referal Code
+            </Grid>
+            <Grid item xs={12}>
+              {Math.floor(Math.random() * 1000)}
+            </Grid>
+          </Grid>
+        </Grid>
+      </Paper>
+    </Modal>
+  )
+}
 
 export default Home;
