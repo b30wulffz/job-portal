@@ -131,6 +131,7 @@ const Login = (props) => {
     profile: "",
     bio: "",
     contactNumber: "",
+    etheriumAddress: "",
   });
 
   const [phone, setPhone] = useState("");
@@ -162,6 +163,12 @@ const Login = (props) => {
       error: false,
       message: "",
     },
+    etheriumAddress: {
+      untouched: true,
+      required: true, 
+      error: false,
+      message: ""
+    }
   });
 
   const handleInput = (key, value) => {
@@ -241,6 +248,7 @@ const Login = (props) => {
           console.log(err.response);
         });
     } else {
+      console.log(tmpErrorHandler)
       setInputErrorHandler(tmpErrorHandler);
       setPopup({
         open: true,
@@ -440,6 +448,24 @@ const Login = (props) => {
                 uploadTo={apiList.uploadProfileImage}
                 handleInput={handleInput}
                 identifier={"profile"}
+              />
+            </Grid>
+            <Grid item>
+              <TextField 
+                label='Etherium Address'
+                className={classes.inputBox}
+                error={inputErrorHandler.etheriumAddress.error}
+                helperText={inputErrorHandler.etheriumAddress.message}
+                onBlur={(event) => {
+                  if (event.target.value === "") {
+                    handleInputError("etheriumAddress", true, "Etherium Address is required");
+                  } else {
+                    handleInputError("etheriumAddress", false, "");
+                  }
+                }}
+                variant="outlined"
+                value={signupDetails.etheriumAddress}
+                onChange={(e) => handleInput('etheriumAddress', e.target.value)}
               />
             </Grid>
           </>
