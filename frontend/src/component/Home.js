@@ -28,6 +28,7 @@ import { SetPopupContext } from "../App";
 
 import apiList from "../lib/apiList";
 import { userType } from "../lib/isAuth";
+import { nanoid } from 'nanoid'
 
 const useStyles = makeStyles((theme) => ({
   body: {
@@ -156,7 +157,7 @@ const JobTile = (props) => {
                 onClick={() => {
                   setReferalOpen(true)
                 }}
-                disabled={userType() !== 'recruiter'}
+                disabled={userType() === 'recruiter'}
               >
                 Refer
               </Button>
@@ -203,7 +204,7 @@ const JobTile = (props) => {
           </Button>
         </Paper>
       </Modal>
-      <ReferalCodePopup open={referalOpen} handleClose={handleReferalClose} />
+      <ReferalCodePopup open={referalOpen} handleClose={handleReferalClose} job={job} />
     </Paper>
   );
 };
@@ -740,30 +741,74 @@ const Home = (props) => {
 };
 
 const ReferalCodePopup = (props) => {
-  const classes = useStyles()
-  const { open, handleClose } = props
-  return (
-    <Modal open={open} onClose={handleClose} className={classes.popupDialog}>
-      <Paper 
-        style={{
-          padding: "50px",
-          outline: "none",
-          minWidth: "50%",
-        }}
-      >
-        <Grid container direction="column" alignItems="center" spacing={3}>
-          <Grid container item alignItems="center">
-            <Grid item xs={12}>
-              Referal Code
-            </Grid>
-            <Grid item xs={12}>
-              {Math.floor(Math.random() * 1000)}
-            </Grid>
-          </Grid>
-        </Grid>
-      </Paper>
-    </Modal>
-  )
+	const classes = useStyles()
+	const { open, handleClose, job } = props
+
+	const setPopup = useContext(SetPopupContext)
+
+	const referalCode = nanoid(16)
+
+	const handleReferalCode = () => {
+		return axios
+			.post(
+				`${apiList.referal}`,
+				{ jobId: job._id, referalCode },
+				{
+					headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+				}
+			)
+			.then((response) => {
+				setPopup({
+					open: true,
+					severity: 'success',
+					message: response.data.message,
+				})
+				handleClose()
+			})
+			.catch((err) => {
+				console.log(err.response)
+				setPopup({
+					open: true,
+					severity: 'error',
+					message: err.response.data.message,
+				})
+				handleClose()
+			})
+	}
+
+	return (
+		<Modal open={open} onClose={handleClose} className={classes.popupDialog}>
+			<Paper
+				style={{
+					padding: '20px',
+					outline: 'none',
+					display: 'flex',
+					flexDirection: 'column',
+					justifyContent: 'center',
+					minWidth: '50%',
+					alignItems: 'center',
+				}}
+			>
+				<TextField
+					variant="outlined"
+          size="small"
+					value={referalCode}
+					label='Referal Code'
+          InputProps={{
+						readOnly: true,
+					}}
+				/>
+				<Button
+					variant='contained'
+					color='primary'
+					style={{ padding: '10px 50px', marginTop: "10px" }}
+					onClick={handleReferalCode}
+				>
+					Save
+				</Button>
+			</Paper>
+		</Modal>
+	)
 }
 
 export default Home;
