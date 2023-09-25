@@ -92,6 +92,10 @@ let schema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    location: {
+      type: String,
+      required: true,
+    },
     duration: {
       type: Number,
       min: 0,

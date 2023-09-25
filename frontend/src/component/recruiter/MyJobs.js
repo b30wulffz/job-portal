@@ -158,6 +158,7 @@ const JobTile = (props) => {
             <Rating value={job.rating !== -1 ? job.rating : null} readOnly />
           </Grid>
           <Grid item>Role : {job.jobType}</Grid>
+          <Grid item>Location : {job.location}</Grid>
           <Grid item>Salary : &#8377; {job.salary} per month</Grid>
           <Grid item>
             Duration :{" "}
@@ -490,6 +491,26 @@ const FilterPopup = (props) => {
           </Grid>
           <Grid container item alignItems="center">
             <Grid item xs={3}>
+              Location
+            </Grid>
+            <Grid item xs={9}>
+              <TextField
+                label="Location"
+                variant="outlined"
+                fullWidth
+                value={searchOptions.location}
+                onChange={(event) =>
+                  setSearchOptions({
+                    ...searchOptions,
+                    location: event.target.value,
+                  })
+                }
+              >
+              </TextField>
+            </Grid>
+          </Grid>
+          <Grid container item alignItems="center">
+            <Grid item xs={3}>
               Sort
             </Grid>
             <Grid item container direction="row" xs={9}>
@@ -690,6 +711,7 @@ const MyJobs = (props) => {
       partTime: false,
       wfh: false,
     },
+    location:"",
     salary: [0, 100],
     duration: "0",
     sort: {
@@ -717,6 +739,9 @@ const MyJobs = (props) => {
     let searchParams = [`myjobs=1`];
     if (searchOptions.query !== "") {
       searchParams = [...searchParams, `q=${searchOptions.query}`];
+    }
+    if (searchOptions.location) {
+      searchParams = [...searchParams, `location=${searchOptions.location}`];
     }
     if (searchOptions.jobType.fullTime) {
       searchParams = [...searchParams, `jobType=Full%20Time`];
