@@ -283,34 +283,43 @@ router.put("/jobs/:id", jwtAuth, (req, res) => {
     });
 });
 
-// to delete a job
-router.delete("/jobs/:id", jwtAuth, (req, res) => {
-  const user = req.user;
-  if (user.type != "recruiter") {
-    res.status(401).json({
-      message: "You don't have permissions to delete the job",
-    });
-    return;
-  }
-  Job.findOneAndDelete({
-    _id: req.params.id,
-    userId: user.id,
-  })
-    .then((job) => {
-      if (job === null) {
-        res.status(401).json({
-          message: "You don't have permissions to delete the job",
-        });
-        return;
-      }
-      res.json({
-        message: "Job deleted successfully",
+// to delete a job & update status of applicants
+router.delete("/jobs/:id", jwtAuth, async (req, res) => {
+  try {
+    const user = req.user;
+    
+    if (user.type !== "recruiter") {
+      return res.status(401).json({
+        message: "You don't have permissions to delete the job",
       });
-    })
-    .catch((err) => {
-      res.status(400).json(err);
+    }
+
+    const job = await Job.findOneAndDelete({
+      _id: req.params.id,
+      userId: user.id,
     });
+    
+    if (job === null) {
+      return res.status(401).json({
+        message: "You don't have permissions to delete the job",
+      });
+    }
+
+    // Updating status of applications of the job (applied to deleted)
+    const applications = await Application.updateMany
+    (
+      { jobId: job._id },
+      { status: "deleted" }
+    );
+   
+    res.json({
+      message: "Job deleted successfully",
+    });
+  } catch (err) {
+    res.status(400).json(err);
+  }
 });
+
 
 // get user's personal details
 router.get("/user", jwtAuth, (req, res) => {
